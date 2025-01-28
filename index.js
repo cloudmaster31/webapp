@@ -3,9 +3,62 @@ const { Sequelize, DataTypes } = require("sequelize");
 const app = express();
 
 
-// Initialising Basic Node Server
+// Postgre Initiated
+const sequelize = new Sequelize("cloud", "postgres", "1234", {
+    host: "localhost",
+    dialect: "postgres",
+});
 
+// Define the HealthCheck model (table)
+const HealthCheck = sequelize.define(
+    "HealthCheck",
+    {
+        checkId: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+        },
+        datetime: {
+            type: DataTypes.DATE,
+            allowNull: false,
+            defaultValue: Sequelize.NOW,
+        },
+    },
+    {
+        tableName: "health_check",
+        timestamps: false,
+    }
+);
+
+// Get Api Call
+app.get("/healthz", async (req, res) => {
+    try {
+        // Connect with Databasse
+        await sequelize.authenticate();
+
+        // Data Inserted
+        const result = await HealthCheck.create({});
+
+        console.log(`entry Added with ID: ${result.checkId}`);
+        // Give Success Response
+        res.status(200).end();
+    } catch (error) {
+        console.error("Error in health check:", error);
+        // Give Error 503
+        res.status(503).end();
+    }
+});
+
+// for other calls
+app.all('/healthz', (req, res) => {
+    res.status(405).send();
+});
+
+
+
+
+// Initialising Basic Node Server
 const port = 8080;
 app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
+    console.log(`Server listening on port ${port}`);
 });
