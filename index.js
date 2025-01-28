@@ -33,6 +33,15 @@ const HealthCheck = sequelize.define(
 // Get Api Call
 app.get("/healthz", async (req, res) => {
     try {
+
+        //  check for Payload
+        if (req.get("Content-Length") > 0) {
+            return res.status(400).end();
+        }
+
+        // Add Cache-Control header
+        res.set("Cache-Control", "no-cache");
+
         // Connect with Databasse
         await sequelize.authenticate();
 
@@ -40,9 +49,12 @@ app.get("/healthz", async (req, res) => {
         const result = await HealthCheck.create({});
 
         console.log(`entry Added with ID: ${result.checkId}`);
+
         // Give Success Response
         res.status(200).end();
     } catch (error) {
+
+        res.set("Cache-Control", "no-cache");
         console.error("Error in health check:", error);
         // Give Error 503
         res.status(503).end();
