@@ -18,4 +18,14 @@ To Start the Server
 
 ```bash
 node index.js
+```
+
+server is running on port 8080.
+
+#### 3. Testing
+
+To test the query
+
+```bash
+curl -vvv http://localhost:8080/healthz
 ````
