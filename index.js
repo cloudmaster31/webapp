@@ -7,6 +7,7 @@ const app = express();
 const sequelize = new Sequelize("cloud", "postgres", "1234", {
     host: "localhost",
     dialect: "postgres",
+    logging: false,
 });
 
 // Define the HealthCheck model (table)
@@ -29,6 +30,15 @@ const HealthCheck = sequelize.define(
         timestamps: false,
     }
 );
+
+// sync table so if table not exist then also create a table automaticlly.
+(async () => {
+    try {
+        await sequelize.sync(); 
+    } catch (error) {
+        console.error("Error syncing database:", error);
+    }
+})();
 
 // Get Api Call
 app.get("/healthz", async (req, res) => {
