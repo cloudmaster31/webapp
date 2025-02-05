@@ -40,8 +40,8 @@ sudo unzip /root/Smit_Patel_002088543_02.zip -d /opt/csye6225/
 
 # Update permissions
 echo "Updating folder permissions..."
-sudo chown -R smit:cyse6225 /opt/csye6225/Smit_Patel_002088543_02
-sudo chmod -R 750 /opt/csye6225/Smit_Patel_002088543_02
+sudo chown -R smit:cyse6225 /opt/csye6225/
+sudo chmod -R 750 /opt/csye6225/
 
 echo "Setup completed successfully."
 cd /opt/csye6225/Smit_Patel_002088543_02/webapp
