@@ -16,15 +16,15 @@ describe("Health Check API", () => {
     expect(res.status).toBe(200);
   });
 
-  test("Invalid POST method on /healthz should return 405", async () => {
+  test("Invalid POST method : /healthz return 405", async () => {
     const res = await request(app).post("/healthz");
     expect(res.status).toBe(405);
   });
-  test("Invalid PUT method on /healthz should return 405", async () => {
+  test("Invalid PUT method : /healthz return 405", async () => {
     const res = await request(app).put("/healthz");
     expect(res.status).toBe(405);
   });
-  test("Invalid GET method on /healthz with body should return 400", async () => {
+  test("Invalid GET method : /healthz with body return 400", async () => {
     const response = await request(app)
       .get("/healthz")
       .send({ key: "value" });

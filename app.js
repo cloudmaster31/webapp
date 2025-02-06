@@ -25,13 +25,14 @@ app.get("/healthz", async (req, res) => {
     res.status(503).end();
   }
 });
-app.use((req, res) => {
-  res.status(404).end();
-});
 
 // Handle other calls
 app.all("/healthz", async (req, res) => {
   res.status(405).send();
 });
+app.use((req, res) => {
+  res.status(404).end();
+});
+
 
 module.exports = app;
