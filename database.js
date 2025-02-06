@@ -65,7 +65,7 @@ async function connectDatabase() {
   try {
     await sequelize.authenticate();
     console.log(`Connected to database: ${dbName}`);
-    await HealthCheck.sync(); // ✅ Ensure the table exists
+    await HealthCheck.sync(); 
     console.log("Database synced successfully.");
   } catch (error) {
     console.error("Database connection error:", error);
