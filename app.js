@@ -9,7 +9,9 @@ app.get("/healthz", async (req, res) => {
     if (req.get("Content-Length") > 0) {
       return res.status(400).end();
     }
-
+    if (Object.keys(req.query).length > 0) {
+      return res.status(400).end();
+    }
     res.set("Cache-Control", "no-cache");
 
     await sequelize.authenticate();
@@ -28,5 +30,9 @@ app.get("/healthz", async (req, res) => {
 app.all("/healthz", async (req, res) => {
   res.status(405).send();
 });
+app.use((req, res) => {
+  res.status(404).end();
+});
+
 
 module.exports = app;
