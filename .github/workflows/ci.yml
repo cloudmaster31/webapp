@@ -51,3 +51,5 @@ jobs:
           DB_NAME: ${{ secrets.DB_NAME }}
           DB_DIALECT: ${{ secrets.DB_DIALECT }}
         run: npm test
+
+# create a new file in the .github/workflows directory
