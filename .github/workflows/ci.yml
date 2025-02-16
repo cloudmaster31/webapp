@@ -45,11 +45,11 @@ jobs:
 
       - name: Run Tests
         env:
-          DB_HOST: ${{ secrets.DB_HOST }}
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          DB_NAME: ${{ secrets.DB_NAME }}
-          DB_DIALECT: ${{ secrets.DB_DIALECT }}
+          DB_HOST: localhost
+          DB_USER: postgres
+          DB_PASSWORD: 1234
+          DB_NAME: cloud
+          DB_DIALECT: postgres
         run: npm test
 
 # create a new file in the .github/workflows directory
