@@ -14,7 +14,7 @@ jobs:
         image: postgres:15
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: 1234
+          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
           POSTGRES_DB: cloud
         ports:
           - 5432:5432
@@ -45,11 +45,10 @@ jobs:
 
       - name: Run Tests
         env:
-          DB_HOST: localhost
-          DB_USER: postgres
-          DB_PASSWORD: 1234
-          DB_NAME: cloud
-          DB_DIALECT: postgres
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_DIALECT: ${{ secrets.DB_DIALECT }}
         run: npm test
 
-# create a new file in the .github/workflows directory
