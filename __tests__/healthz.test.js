@@ -26,7 +26,7 @@ describe("Health Check API", () => {
   });
   test("Invalid PUT method : /healthz return 405", async () => {
     const res = await request(app).put("/healthz");
-    expect(res.status).toBe(403);
+    expect(res.status).toBe(405);
   });
   test("Invalid GET method : /healthz with body return 400", async () => {
     const response = await request(app)
