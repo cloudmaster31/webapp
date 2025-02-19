@@ -1,5 +1,5 @@
 const express = require("express");
-const { sequelize, HealthCheck } = require("./database"); // Import HealthCheck model
+const { sequelize, HealthCheck } = require("./database"); // Import HealthCheck model.
 
 const app = express();
 
