@@ -74,3 +74,4 @@ async function connectDatabase() {
 }
 
 module.exports = { sequelize, HealthCheck, connectDatabase };
+ 
