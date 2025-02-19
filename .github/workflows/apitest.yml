@@ -1,9 +1,9 @@
 name: CI - Run Tests
 
 on:
-  push:
+  pull_request:
     branches:
-      - webapp_cicd
+      - main
 
 jobs:
   test:
