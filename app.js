@@ -28,9 +28,11 @@ app.get("/healthz", async (req, res) => {
 
 // Handle other calls
 app.all("/healthz", async (req, res) => {
+  res.set("Cache-Control", "no-cache");
   res.status(405).send();
 });
 app.use((req, res) => {
+  res.set("Cache-Control", "no-cache");
   res.status(404).end();
 });
 
