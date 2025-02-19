@@ -20,6 +20,10 @@ describe("Health Check API", () => {
     const res = await request(app).post("/healthz");
     expect(res.status).toBe(405);
   });
+  test("Invalid POST method : /healthz return 405", async () => {
+    const res = await request(app).delete("/healthz");
+    expect(res.status).toBe(405);
+  });
   test("Invalid PUT method : /healthz return 405", async () => {
     const res = await request(app).put("/healthz");
     expect(res.status).toBe(405);
