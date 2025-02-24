@@ -32,3 +32,4 @@ npm test
 
 ### 5. Webapp CI Pipeline
 A GitHub Actions CI pipeline has been created to automate testing and validation of the application.
+
