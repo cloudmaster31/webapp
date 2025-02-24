@@ -18,7 +18,7 @@ describe("Health Check API", () => {
 
   test("Invalid POST method : /healthz return 405", async () => {
     const res = await request(app).post("/healthz");
-    expect(res.status).toBe(405);
+    expect(res.status).toBe(402);
   });
   test("Invalid POST method : /healthz return 405", async () => {
     const res = await request(app).delete("/healthz");
