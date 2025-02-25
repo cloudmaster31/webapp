@@ -1,0 +1,35 @@
+name: Packer Validation
+
+on:
+  pull_request:
+    branches:
+      - main  # Or your default branch, for example, 'main' or 'master'
+
+jobs:
+  packer-validation:
+    runs-on: ubuntu-latest 
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+    - name: Set up Packer
+      uses: hashicorp/setup-packer@v1
+      with:
+        packer_version: '1.8.4'  # Adjust the version if necessary
+
+    - name: Run packer fmt
+      run: |
+        packer fmt -check=true
+      continue-on-error: true  # This allows failure to proceed to the next step
+
+    - name: Check if Packer fmt modified any files
+      run: |
+        if [[ -n "$(git status --porcelain)" ]]; then
+          echo "packer fmt has modified files. Please run 'packer fmt' and commit changes."
+          exit 1
+        fi
+
+    - name: Run packer validate
+      run: |
+        packer validate your-packer-template.pkr.hcl
+      continue-on-error: false  # This will stop execution if validation fails
