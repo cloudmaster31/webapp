@@ -72,6 +72,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+
       - name: Download `webapp.zip` Artifact
         uses: actions/download-artifact@v4
         with:
@@ -103,6 +104,11 @@ jobs:
       - name: Validate Packer Template
         run: |
           packer validate packer/variables.pkr.hcl
+
+      - name: Check downloaded files
+        run: ls -lah /tmp  
+
+      
 
       - name: Run Packer Build
         run: |
