@@ -92,9 +92,9 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Set up Packer
-        uses: hashicorp/setup-packer@v1
+        uses: hashicorp/setup-packer@v2
         with:
-          packer_version: '1.8.4'
+          packer_version: '>=1.0.0, <2.0.0' 
 
       - name: Initialize Packer
         run: |
