@@ -19,6 +19,10 @@ variable "gcp_instance_type" {
 variable "gcp_zone" {
   default = "us-central1-a"
 }
+variable "artifact_path" {
+  description = "Path to the artifact"
+  type        = string
+}
 source "amazon-ebs" "ubuntu" {
  
   source_ami_filter {
@@ -113,7 +117,7 @@ build {
       "sudo groupadd csye6225",
       "sudo usermod -aG csye6225 csye6225",
       # Unzip the application artifacts to a directory
-      "sudo unzip /tmp/webapp.zip -d /home/csye6225/app",
+      "sudo unzip ${var.artifact_path} -d /home/csye6225/app",
 
       # Set ownership of the application files
       "sudo chown -R csye6225:csye6225 /home/csye6225/app",
