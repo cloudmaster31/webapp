@@ -65,7 +65,7 @@ jobs:
           zip -r ../webapp.zip ./*
 
       - name: Upload `webapp.zip` as an artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: webapp-artifact
           path: webapp.zip
