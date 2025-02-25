@@ -20,7 +20,9 @@ jobs:
       run: |
         acker fmt -check=true packer
       continue-on-error: true  # This allows failure to proceed to the next step
-
+    - name: Run packer init
+      run: |
+        packer init packer/variables.pkr.hcl
     - name: Run packer validate
       run: |
         packer validate packer/variables.pkr.hcl
