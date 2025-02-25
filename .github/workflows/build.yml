@@ -1,0 +1,114 @@
+name: Build and Deploy Packer Image
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          POSTGRES_DB: cloud
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          until pg_isready -h localhost -p 5432 -U postgres; do
+            echo "Waiting for PostgreSQL..."
+            sleep 2
+          done
+
+      - name: Run Tests
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_DIALECT: ${{ secrets.DB_DIALECT }}
+        run: npm test
+
+      - name: Build Application
+        run: |
+          mkdir -p output
+          npm run build  # Modify if needed
+          cp -r build/* output/
+
+      - name: Create `webapp.zip`
+        run: |
+          cd output
+          zip -r ../webapp.zip ./*
+
+      - name: Upload `webapp.zip` as an artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: webapp-artifact
+          path: webapp.zip
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0.2.0
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          credentials: ${{ secrets.GCP_CREDENTIALS }}
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          region: us-east-1
+
+
+  build-and-deploy:
+    needs: test-and-build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Download `webapp.zip` Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: webapp-artifact
+          path: /tmp
+
+      - name: Set up Packer
+        uses: hashicorp/setup-packer@v1
+        with:
+          packer_version: '1.8.4'
+
+      - name: Initialize Packer
+        run: |
+          packer init packer/variables.pkr.hcl
+
+      - name: Validate Packer Template
+        run: |
+          packer validate packer/variables.pkr.hcl
+
+      - name: Run Packer Build
+        run: |
+          packer build -var "artifact_path=/tmp/webapp.zip" packer/variables.pkr.hcl

@@ -1,0 +1,29 @@
+name: Packer Validation
+
+on:
+  pull_request:
+    branches:
+      - main  # Or your default branch, for example, 'main' or 'master'
+
+jobs:
+  packer-validation:
+    runs-on: ubuntu-latest 
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+    - name: Set up Packer
+      uses: hashicorp/setup-packer@v2
+      with:
+        packer_version: '>=1.0.0, <2.0.0'
+    - name: Run packer fmt
+      run: |
+        acker fmt -check=true packer
+      continue-on-error: true  # This allows failure to proceed to the next step
+    - name: Run packer init
+      run: |
+        packer init packer/variables.pkr.hcl
+    - name: Run packer validate
+      run: |
+        packer validate packer/variables.pkr.hcl
+      continue-on-error: false  # This will stop execution if validation fails
