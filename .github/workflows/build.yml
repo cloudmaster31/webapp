@@ -63,7 +63,21 @@ jobs:
           name: webapp-artifact
           path: webapp.zip
 
-          
+
+  build-and-deploy:
+    needs: test-and-build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Download `webapp.zip` Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: webapp-artifact
+          path: /tmp
+
       - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v0.2.0
         with:
@@ -76,21 +90,6 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-
-
-  build-and-deploy:
-    needs: test-and-build
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: Download `webapp.zip` Artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: webapp-artifact
-          path: /tmp
 
       - name: Set up Packer
         uses: hashicorp/setup-packer@v1
