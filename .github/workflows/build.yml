@@ -35,7 +35,7 @@ jobs:
           node-version: 18
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --production
 
       - name: Wait for PostgreSQL to be ready
         run: |
@@ -53,22 +53,17 @@ jobs:
           DB_DIALECT: ${{ secrets.DB_DIALECT }}
         run: npm test
 
-      - name: Build Application
-        run: |
-          mkdir -p output
-          npm run build  # Modify if needed
-          cp -r build/* output/
-
       - name: Create `webapp.zip`
         run: |
-          cd output
-          zip -r ../webapp.zip ./*
+          zip -r webapp.zip .
 
       - name: Upload `webapp.zip` as an artifact
         uses: actions/upload-artifact@v4
         with:
           name: webapp-artifact
           path: webapp.zip
+
+          
       - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v0.2.0
         with:
