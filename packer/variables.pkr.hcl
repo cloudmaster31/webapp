@@ -115,7 +115,7 @@ build {
       ". /etc/environment",
 
       "sudo useradd -m -s /usr/sbin/nologin csye6225",
-      "sudo groupadd csye6225",
+      "sudo groupadd -f csye6225",
       "sudo usermod -aG csye6225 csye6225",
       # Unzip the application artifacts to a directory
       "sudo unzip ${var.artifact_path} -d /home/csye6225/app",
