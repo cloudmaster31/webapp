@@ -13,10 +13,9 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v2
     - name: Set up Packer
-      uses: hashicorp/setup-packer@v1
+      uses: hashicorp/setup-packer@v2
       with:
-        packer_version: '1.8.4'  # Adjust the version if necessary
-
+        packer_version: '>=1.0.0, <2.0.0'
     - name: Run packer fmt
       run: |
         packer fmt -check=true
