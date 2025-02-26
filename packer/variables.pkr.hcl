@@ -147,7 +147,7 @@ build {
       "echo \"DB_PASSWORD=${var.db_password}\" | sudo tee -a /etc/environment",
       "echo \"DB_HOST=${var.db_host}\" | sudo tee -a /etc/environment",
       "echo \"DB_DIALECT=${var.db_dialect}\" | sudo tee -a /etc/environment",
-      "export $(cat /etc/environment | xargs)"
+      "export $(cat /etc/environment | xargs)",
       "sudo useradd -m -s /bin/bash csye6225 || true",
       "sudo groupadd -f csye6225",
       "sudo usermod -aG csye6225 csye6225",
