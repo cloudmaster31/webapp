@@ -17,15 +17,17 @@ variable "gcp_instance_type" {
   default = "n1-standard-1"
 }
 variable "gcp_zone" {
-  default = "us-central1-a"
+  default = "us-central1-b"
 }
 variable "artifact_path" {
   description = "Path to the artifact"
   type        = string
-  default     = "/tmp/webapp.zip"
+  default     = "/"
 }
+
+
 source "amazon-ebs" "ubuntu" {
- 
+
   source_ami_filter {
     filters = {
       name                = "ubuntu-*-24.04-*"
@@ -46,13 +48,13 @@ source "amazon-ebs" "ubuntu" {
 }
 
 source "googlecompute" "ubuntu" {
-  project_id       = var.gcp_project_id
-  source_image     = "ubuntu-minimal-2004-focal-v20250213"
-  zone             = var.gcp_zone
-  image_name       = "ubuntu-custom-webapp"
-  image_family     = "ubuntu-minimal-2004-lts"
-  machine_type     = var.gcp_instance_type
-  ssh_username     = "ubuntu"
+  project_id              = var.gcp_project_id
+  source_image            = "ubuntu-minimal-2004-focal-v20250213"
+  zone                    = var.gcp_zone
+  image_name              = "ubuntu-custom-webapp"
+  image_family            = "ubuntu-minimal-2004-lts"
+  machine_type            = var.gcp_instance_type
+  ssh_username            = "ubuntu"
   image_storage_locations = ["us"]
   labels = {
     env = "dev"
@@ -90,7 +92,11 @@ build {
   sources = [
     "source.amazon-ebs.ubuntu",
     "source.googlecompute.ubuntu",
-    ]
+  ]
+  provisioner "file" {
+    source      = "${var.artifact_path}" # File on the GitHub Actions runner
+    destination = "/tmp/webapp.zip"      # Destination inside the VM
+  }
 
   provisioner "shell" {
     inline = [
@@ -118,13 +124,17 @@ build {
       "sudo groupadd -f csye6225",
       "sudo usermod -aG csye6225 csye6225",
       # Unzip the application artifacts to a directory
+      "sudo mkdir -p /home/csye6225/app",
       "sudo unzip ${var.artifact_path} -d /home/csye6225/app",
 
       # Set ownership of the application files
+      
       "sudo chown -R csye6225:csye6225 /home/csye6225/app",
-
+      "cd /home/csye6225/app",
+      "ls -la",
       # Install application dependencies
-      "cd /home/csye6225/app && sudo -u csye6225 npm install",
+      "cd /webapp",
+      "ls -la",
 
     ]
   }
