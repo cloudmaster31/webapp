@@ -99,43 +99,53 @@ build {
   }
 
   provisioner "shell" {
-    inline = [
-      "export DEBIAN_FRONTEND=noninteractive",
-      "sudo apt update && sudo apt install -y apt-utils",
-      "sudo apt upgrade -y",
-      "sudo apt install -y postgresql",
-      "sudo systemctl enable --now postgresql",
-      "sudo systemctl start postgresql",
-      "sudo -u postgres psql -c \"ALTER USER postgres WITH PASSWORD '1234';\" >/dev/null 2>&1",
-      "sudo apt install -y unzip curl",
-      "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -",
-      "sudo apt-get install -y nodejs",
+  inline = [
+    "export DEBIAN_FRONTEND=noninteractive",
+    "sudo apt update && sudo apt install -y apt-utils",
+    "sudo apt upgrade -y",
+    "sudo apt install -y postgresql",
+    "sudo systemctl enable --now postgresql",
+    "sudo systemctl start postgresql",
+    "sudo -u postgres psql -c \"ALTER USER postgres WITH PASSWORD '1234';\" >/dev/null 2>&1",
+    "sudo apt install -y unzip curl",
+    "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -",
+    "sudo apt-get install -y nodejs",
 
-      "sudo bash -c 'echo \"DB_NAME=cloud\" >> /etc/environment'",
-      "sudo bash -c 'echo \"DB_USER=postgres\" >> /etc/environment'",
-      "sudo bash -c 'echo \"DB_PASSWORD=1234\" >> /etc/environment'",
-      "sudo bash -c 'echo \"DB_HOST=localhost\" >> /etc/environment'",
-      "sudo bash -c 'echo \"DB_DIALECT=postgres\" >> /etc/environment'",
+    # Set environment variables
+    "sudo bash -c 'echo \"DB_NAME=cloud\" >> /etc/environment'",
+    "sudo bash -c 'echo \"DB_USER=postgres\" >> /etc/environment'",
+    "sudo bash -c 'echo \"DB_PASSWORD=1234\" >> /etc/environment'",
+    "sudo bash -c 'echo \"DB_HOST=localhost\" >> /etc/environment'",
+    "sudo bash -c 'echo \"DB_DIALECT=postgres\" >> /etc/environment'",
+    
+    # Load environment variables
+    "export $(cat /etc/environment | xargs)",
 
-      # Load environment variables using bash
-      ". /etc/environment",
+    # Create user and group
+    "sudo useradd -m -s /usr/sbin/nologin csye6225 || true",
+    "sudo groupadd -f csye6225",
+    "sudo usermod -aG csye6225 csye6225",
 
-      "sudo useradd -m -s /usr/sbin/nologin csye6225",
-      "sudo groupadd -f csye6225",
-      "sudo usermod -aG csye6225 csye6225",
-      # Unzip the application artifacts to a directory
-      "sudo mkdir -p /home/csye6225/app",
-      "sudo unzip ${var.artifact_path} -d /home/csye6225/app",
+    # Create application directory
+    "sudo mkdir -p /home/csye6225/app",
+    "sudo chown -R csye6225:csye6225 /home/csye6225",
+    "sudo chmod -R 755 /home/csye6225/app",
 
-      # Set ownership of the application files
-      
-      "sudo chown -R csye6225:csye6225 /home/csye6225/app",
-      "cd /home/csye6225/app",
-      "ls -la",
-      # Install application dependencies
-      "cd /webapp",
-      "ls -la",
+    # Verify directory creation
+    "ls -ld /home/csye6225/app",
 
-    ]
-  }
+    # Unzip application artifacts
+    "sudo unzip ${var.artifact_path} -d /home/csye6225/app",
+    
+    # Verify extraction
+    "ls -la /home/csye6225/app",
+
+    # Change to application directory as csye6225 user
+    "sudo -u csye6225 bash -c 'cd /home/csye6225/app && ls -la'",
+
+    # Change to webapp directory
+    "sudo -u csye6225 bash -c 'cd /home/csye6225/app/webapp && ls -la'"
+  ]
+}
+
 }
