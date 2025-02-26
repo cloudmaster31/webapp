@@ -174,7 +174,8 @@ build {
       User=csye6225
       Group=csye6225
       WorkingDirectory=/home/csye6225/app
-      ExecStart=/usr/bin/node /home/csye6225/app/index.js
+      EnvironmentFile=/etc/environment
+      ExecStart=/usr/bin/env node /home/csye6225/app/index.js
       Restart=always
 
       [Install]
