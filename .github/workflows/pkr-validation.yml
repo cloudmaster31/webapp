@@ -18,11 +18,11 @@ jobs:
         packer_version: '>=1.0.0, <2.0.0'
     - name: Run packer fmt
       run: |
-        acker fmt -check=true packer
+        acker fmt -check=true packer/
       continue-on-error: true  # This allows failure to proceed to the next step
     - name: Run packer init
       run: |
-        packer init .
+        packer init packer/
 
     - name: Export Environment Variables from Secrets
       run: |
@@ -40,5 +40,5 @@ jobs:
 
     - name: Run packer validate
       run: |
-        packer validate .
+        packer validate packer/
       continue-on-error: false  # This will stop execution if validation fails
