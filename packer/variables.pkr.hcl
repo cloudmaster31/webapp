@@ -2,6 +2,35 @@ variable "aws_region" {
   default = "us-east-1"
 }
 
+variable "db_password" {
+  description = "Database password"
+  type        = string
+  sensitive   = true
+}
+
+variable "db_name" {
+  description = "Database name"
+  type        = string
+  default     = "cloud"
+}
+
+variable "db_user" {
+  description = "Database user"
+  type        = string
+  default     = "postgres"
+}
+variable "db_host" {
+  description = "Database host"
+  type        = string
+  default     = "localhost"
+}
+variable "db_dialect" {
+  description = "Database dialect"
+  type        = string
+  default     = "postgres"
+}
+
+
 variable "aws_profile" {
   default = "dev"
 }
@@ -114,7 +143,7 @@ build {
       "sudo apt-get install -y nodejs",
       "echo 'DB_NAME=cloud' | sudo tee -a /etc/environment",
       "echo 'DB_USER=postgres' | sudo tee -a /etc/environment",
-      "echo 'DB_PASSWORD=1234' | sudo tee -a /etc/environment",
+      "echo 'DB_PASSWORD='${var.db_password}' | sudo tee -a /etc/environment",
       "echo 'DB_HOST=localhost' | sudo tee -a /etc/environment",
       "echo 'DB_DIALECT=postgres' | sudo tee -a /etc/environment",
       "export $(cat /etc/environment | xargs)",
@@ -144,7 +173,7 @@ build {
       User=csye6225
       Group=csye6225
       WorkingDirectory=/home/csye6225/app
-      ExecStart=/usr/bin/node /home/csye6225/app/server.js
+      ExecStart=/usr/bin/node /home/csye6225/app/index.js
       Restart=always
 
       [Install]
