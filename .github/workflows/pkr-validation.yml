@@ -16,6 +16,11 @@ jobs:
       uses: hashicorp/setup-packer@v2
       with:
         packer_version: '>=1.0.0, <2.0.0'
+  
+    - name: Create Dummy `webapp.zip`
+      run: |
+        touch /tmp/webapp.zip
+
     - name: Run packer fmt
       run: |
         acker fmt -check=true packer/

@@ -7,7 +7,7 @@ source "amazon-ebs" "ubuntu" {
       virtualization-type = "hvm"
     }
     owners      = ["099720109477"]
-    most_recent = true
+    most_recent = tru
   }
   instance_type = var.aws_instance_type
   ssh_username  = "ubuntu"
