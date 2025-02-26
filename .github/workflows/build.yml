@@ -106,9 +106,14 @@ jobs:
           packer validate packer/variables.pkr.hcl
 
       - name: Check downloaded files
-        run: ls -lah /tmp  
+        run: ls -lah /tmp  # Ensure webapp.zip is present
 
-      
+      - name: Fix permissions for webapp.zip
+        run: sudo chown $(whoami):$(whoami) /tmp/webapp.zip && sudo chmod 644 /tmp/webapp.zip
+      - name: Verify `webapp.zip` exists
+        run: ls -lah /tmp/webapp.zip
+
+
 
       - name: Run Packer Build
         run: |
