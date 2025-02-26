@@ -22,7 +22,7 @@ variable "gcp_zone" {
 variable "artifact_path" {
   description = "Path to the artifact"
   type        = string
-  default     = "/tmp/webapp.zip"
+  default     = "/"
 }
 
 
