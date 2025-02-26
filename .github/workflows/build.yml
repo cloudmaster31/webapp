@@ -101,23 +101,9 @@ jobs:
 
       - name: Initialize Packer
         run: |
-          packer init .
+          packer init packer/
 
       - name: Validate Packer Template
-        run: |
-          packer validate .
-
-      - name: Check downloaded files
-        run: ls -lah /tmp  # Ensure webapp.zip is present
-
-      - name: Fix permissions for webapp.zip
-        run: sudo chown $(whoami):$(whoami) /tmp/webapp.zip && sudo chmod 644 /tmp/webapp.zip
-      - name: Verify `webapp.zip` exists
-        run: ls -lah /tmp/webapp.zip
-
-
-
-      - name: Run Packer Build
         env:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_HOST: ${{ secrets.DB_HOST }}
@@ -130,6 +116,20 @@ jobs:
           GCP_INSTANCE_TYPE: ${{ secrets.GCP_INSTANCE_TYPE }}
           ARTIFACT_PATH: ${{ secrets.ARTIFACT_PATH }}
           AWS_INSTANCE_TYPE: ${{ secrets.AWS_INSTANCE_TYPE }}
+        run: |
+          packer validate packer/
+
+      - name: Check downloaded files
+        run: ls -lah /tmp  # Ensure webapp.zip is present
+
+      - name: Fix permissions for webapp.zip
+        run: sudo chown $(whoami):$(whoami) /tmp/webapp.zip && sudo chmod 644 /tmp/webapp.zip
+      - name: Verify `webapp.zip` exists
+        run: ls -lah /tmp/webapp.zip
+
+
+
+      - name: Run Packer Build
         run: |
           set -e
           packer build packer/ || exit 1
