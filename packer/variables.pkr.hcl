@@ -14,7 +14,7 @@ variable "aws_instance_type" {
   default = "t3.micro"
 }
 variable "gcp_instance_type" {
-  default = "n1-standard-1"
+  default = "e2-medium"
 }
 variable "gcp_zone" {
   default = "us-central1-b"
@@ -49,15 +49,15 @@ source "amazon-ebs" "ubuntu" {
 
 source "googlecompute" "ubuntu" {
   project_id              = var.gcp_project_id
-  source_image_family     = "ubuntu-minimal-2004-lts"  # Always latest in the 2004 family
+  source_image_family     = "ubuntu-minimal-2004-lts" # Always latest in the 2004 family
   zone                    = var.gcp_zone
   image_name              = "ubuntu-custom-webapp"
   image_family            = "ubuntu-minimal-webapp"
   machine_type            = var.gcp_instance_type
-  ssh_username            = "packer"  # More standard for automated provisioning
-  image_storage_locations = ["us-central1"]  # More specific than just "us"
+  ssh_username            = "packer"        # More standard for automated provisioning
+  image_storage_locations = ["us-central1"] # More specific than just "us"
   labels = {
-    env = "dev"
+    env  = "dev"
     role = "webapp"
   }
 }
@@ -92,59 +92,75 @@ packer {
 build {
   sources = [
     "source.amazon-ebs.ubuntu",
-    "source.googlecompute.ubuntu",
+    "source.googlecompute.ubuntu"
   ]
+
   provisioner "file" {
-    source      = "${var.artifact_path}" # File on the GitHub Actions runner
-    destination = "/tmp/webapp.zip"      # Destination inside the VM
+    source      = var.artifact_path
+    destination = "/tmp/webapp.zip"
   }
 
   provisioner "shell" {
-  inline = [
-    "export DEBIAN_FRONTEND=noninteractive",
-    "sudo apt update && sudo apt install -y apt-utils",
-    "sudo apt upgrade -y",
-    "sudo apt install -y postgresql",
-    "sudo systemctl enable --now postgresql",
-    "sudo systemctl start postgresql",
-    "sudo -u postgres psql -c \"ALTER USER postgres WITH PASSWORD '1234';\" >/dev/null 2>&1",
-    "sudo apt install -y unzip curl",
-    "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -",
-    "sudo apt-get install -y nodejs",
+    inline = [
+      "export DEBIAN_FRONTEND=noninteractive",
+      "sudo apt update && sudo apt install -y apt-utils",
+      "sudo apt upgrade -y",
+      "sudo apt install -y postgresql",
+      "sudo systemctl enable --now postgresql",
+      "sudo systemctl start postgresql",
+      "sudo -u postgres psql -c \"ALTER USER postgres WITH PASSWORD '1234';\" >/dev/null 2>&1",
+      "sudo apt install -y unzip curl",
+      "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -",
+      "sudo apt-get install -y nodejs",
+      "echo 'DB_NAME=cloud' | sudo tee -a /etc/environment",
+      "echo 'DB_USER=postgres' | sudo tee -a /etc/environment",
+      "echo 'DB_PASSWORD=1234' | sudo tee -a /etc/environment",
+      "echo 'DB_HOST=localhost' | sudo tee -a /etc/environment",
+      "echo 'DB_DIALECT=postgres' | sudo tee -a /etc/environment",
+      "export $(cat /etc/environment | xargs)",
+      "sudo useradd -m -s /bin/bash csye6225 || true",
+      "sudo groupadd -f csye6225",
+      "sudo usermod -aG csye6225 csye6225",
+      "sudo mkdir -p /home/csye6225/app",
+      "sudo chown -R csye6225:csye6225 /home/csye6225",
+      "sudo chmod -R 755 /home/csye6225",
+      "sudo ls -ld /home/csye6225 /home/csye6225/app",
+      "sudo -u csye6225 unzip /tmp/webapp.zip -d /home/csye6225/app",
+      "sudo -u csye6225 ls -la /home/csye6225/app",
+      "cd /home/csye6225/app && sudo -u csye6225 npm install",
+      
+    ]
+  }
 
-    # Set environment variables
-    "echo 'DB_NAME=cloud' | sudo tee -a /etc/environment",
-    "echo 'DB_USER=postgres' | sudo tee -a /etc/environment",
-    "echo 'DB_PASSWORD=1234' | sudo tee -a /etc/environment",
-    "echo 'DB_HOST=localhost' | sudo tee -a /etc/environment",
-    "echo 'DB_DIALECT=postgres' | sudo tee -a /etc/environment",
-    
-    # Load environment variables
-    "export $(cat /etc/environment | xargs)",
+  provisioner "shell" {
+    inline = [
+      <<EOF
+      sudo bash -c 'cat > /etc/systemd/system/myapp.service <<EOL
+      [Unit]
+      Description=My Web Application
+      After=network.target
 
-    # Create user and group
-    "sudo useradd -m -s /bin/bash csye6225 || true",
-    "sudo groupadd -f csye6225",
-    "sudo usermod -aG csye6225 csye6225",
+      [Service]
+      User=csye6225
+      Group=csye6225
+      WorkingDirectory=/home/csye6225/app
+      ExecStart=/usr/bin/node /home/csye6225/app/server.js
+      Restart=always
 
-    # Create application directory
-    "sudo mkdir -p /home/csye6225/app",
-    "sudo chown -R csye6225:csye6225 /home/csye6225",
-    "sudo chmod -R 755 /home/csye6225",
+      [Install]
+      WantedBy=multi-user.target
+      EOL'
+      EOF
+    ]
+  }
 
-    # Verify directory permissions
-    "sudo ls -ld /home/csye6225 /home/csye6225/app",
-
-    # Unzip application artifacts as csye6225 user
-    "sudo -u csye6225 unzip ${var.artifact_path} -d /home/csye6225/app",
-
-    # Verify extraction
-    "sudo -u csye6225 ls -la /home/csye6225/app",
-
-    # Change to application directory
-    "sudo -u csye6225 bash -c 'cd /home/csye6225/app && ls -la'",
-  ]
+  provisioner "shell" {
+    inline = [
+      "sudo systemctl daemon-reload",
+      "sudo systemctl enable myapp.service",
+      "sudo systemctl start myapp.service",
+      "sudo systemctl status myapp.service || true"
+    ]
+  }
 }
 
-
-}
