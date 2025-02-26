@@ -41,7 +41,7 @@ variable "gcp_project_id" {
 }
 
 variable "aws_instance_type" {
-  default = "t3.micro"
+  default = "t3.medium"
 }
 variable "gcp_instance_type" {
   default = "e2-medium"
@@ -142,12 +142,12 @@ build {
       "sudo apt install -y unzip curl",
       "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -",
       "sudo apt-get install -y nodejs",
-      "echo 'DB_NAME=cloud' | sudo tee -a /etc/environment",
-      "echo 'DB_USER=postgres' | sudo tee -a /etc/environment",
-      "echo 'DB_PASSWORD='${var.db_password}' | sudo tee -a /etc/environment",
-      "echo 'DB_HOST= '${var.db_host}' | sudo tee -a /etc/environment",
-      "echo 'DB_DIALECT=postgres' | sudo tee -a /etc/environment",
-      "export $(cat /etc/environment | xargs)",
+      "echo \"DB_NAME=${var.db_name}\" | sudo tee -a /etc/environment",
+      "echo \"DB_USER=${var.db_user}\" | sudo tee -a /etc/environment",
+      "echo \"DB_PASSWORD=${var.db_password}\" | sudo tee -a /etc/environment",
+      "echo \"DB_HOST=${var.db_host}\" | sudo tee -a /etc/environment",
+      "echo \"DB_DIALECT=${var.db_dialect}\" | sudo tee -a /etc/environment",
+      "export $(cat /etc/environment | xargs)"
       "sudo useradd -m -s /bin/bash csye6225 || true",
       "sudo groupadd -f csye6225",
       "sudo usermod -aG csye6225 csye6225",
