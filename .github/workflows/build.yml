@@ -53,15 +53,7 @@ jobs:
           DB_DIALECT: ${{ secrets.DB_DIALECT }}
         run: npm test
 
-      - name: Create `webapp.zip`
-        run: |
-          zip -r webapp.zip .
-
-      - name: Upload `webapp.zip` as an artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: webapp-artifact
-          path: webapp.zip
+      
 
 
   build-and-deploy:
@@ -71,6 +63,16 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+
+      - name: Create `webapp.zip`
+        run: |
+          zip -r webapp.zip .
+
+      - name: Upload `webapp.zip` as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: webapp-artifact
+          path: webapp.zip
 
 
       - name: Download `webapp.zip` Artifact
