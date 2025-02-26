@@ -124,13 +124,17 @@ build {
       "sudo groupadd -f csye6225",
       "sudo usermod -aG csye6225 csye6225",
       # Unzip the application artifacts to a directory
+      "sudo mkdir -p /home/csye6225/app",
       "sudo unzip ${var.artifact_path} -d /home/csye6225/app",
 
       # Set ownership of the application files
+      
       "sudo chown -R csye6225:csye6225 /home/csye6225/app",
-
+      "cd /home/csye6225/app",
+      "ls -la",
       # Install application dependencies
-      "cd /home/csye6225/app && sudo -u csye6225 npm install",
+      "cd /webapp",
+      "ls -la",
 
     ]
   }
