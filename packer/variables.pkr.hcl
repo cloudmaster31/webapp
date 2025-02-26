@@ -25,12 +25,9 @@ variable "artifact_path" {
   default     = "/tmp/webapp.zip"
 }
 
-provisioner "file" {
-  source      = "${var.artifact_path}"   # File on the GitHub Actions runner
-  destination = "/tmp/webapp.zip"        # Destination inside the VM
-}
+
 source "amazon-ebs" "ubuntu" {
- 
+
   source_ami_filter {
     filters = {
       name                = "ubuntu-*-24.04-*"
@@ -51,13 +48,13 @@ source "amazon-ebs" "ubuntu" {
 }
 
 source "googlecompute" "ubuntu" {
-  project_id       = var.gcp_project_id
-  source_image     = "ubuntu-minimal-2004-focal-v20250213"
-  zone             = var.gcp_zone
-  image_name       = "ubuntu-custom-webapp"
-  image_family     = "ubuntu-minimal-2004-lts"
-  machine_type     = var.gcp_instance_type
-  ssh_username     = "ubuntu"
+  project_id              = var.gcp_project_id
+  source_image            = "ubuntu-minimal-2004-focal-v20250213"
+  zone                    = var.gcp_zone
+  image_name              = "ubuntu-custom-webapp"
+  image_family            = "ubuntu-minimal-2004-lts"
+  machine_type            = var.gcp_instance_type
+  ssh_username            = "ubuntu"
   image_storage_locations = ["us"]
   labels = {
     env = "dev"
@@ -95,7 +92,11 @@ build {
   sources = [
     "source.amazon-ebs.ubuntu",
     "source.googlecompute.ubuntu",
-    ]
+  ]
+  provisioner "file" {
+    source      = "${var.artifact_path}" # File on the GitHub Actions runner
+    destination = "/tmp/webapp.zip"      # Destination inside the VM
+  }
 
   provisioner "shell" {
     inline = [
