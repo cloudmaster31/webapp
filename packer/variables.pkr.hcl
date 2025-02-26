@@ -49,15 +49,16 @@ source "amazon-ebs" "ubuntu" {
 
 source "googlecompute" "ubuntu" {
   project_id              = var.gcp_project_id
-  source_image            = "ubuntu-minimal-2004-focal-v20250213"
+  source_image_family     = "ubuntu-minimal-2004-lts"  # Always latest in the 2004 family
   zone                    = var.gcp_zone
   image_name              = "ubuntu-custom-webapp"
-  image_family            = "ubuntu-minimal-2004-lts"
+  image_family            = "ubuntu-minimal-webapp"
   machine_type            = var.gcp_instance_type
-  ssh_username            = "ubuntu"
-  image_storage_locations = ["us"]
+  ssh_username            = "packer"  # More standard for automated provisioning
+  image_storage_locations = ["us-central1"]  # More specific than just "us"
   labels = {
     env = "dev"
+    role = "webapp"
   }
 }
 
@@ -142,9 +143,6 @@ build {
 
     # Change to application directory
     "sudo -u csye6225 bash -c 'cd /home/csye6225/app && ls -la'",
-
-    # Change to webapp directory
-    "sudo -u csye6225 bash -c 'cd /home/csye6225/app/webapp && ls -la'"
   ]
 }
 
