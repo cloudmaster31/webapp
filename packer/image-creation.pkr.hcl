@@ -1,61 +1,3 @@
-variable "aws_region" {
-  default = "us-east-1"
-}
-
-variable "db_password" {
-  description = "Database password"
-  type        = string
-  sensitive   = true
-  default     = ""
-}
-
-variable "db_name" {
-  description = "Database name"
-  type        = string
-  default     = ""
-}
-
-variable "db_user" {
-  description = "Database user"
-  type        = string
-  default     = ""
-}
-variable "db_host" {
-  description = "Database host"
-  type        = string
-  default     = "localhost"
-}
-variable "db_dialect" {
-  description = "Database dialect"
-  type        = string
-  default     = ""
-}
-
-
-variable "aws_profile" {
-  default = "dev"
-}
-
-variable "gcp_project_id" {
-  default = "webapp-dev-451815"
-}
-
-variable "aws_instance_type" {
-  default = "t3.medium"
-}
-variable "gcp_instance_type" {
-  default = "e2-medium"
-}
-variable "gcp_zone" {
-  default = "us-central1-b"
-}
-variable "artifact_path" {
-  description = "Path to the artifact"
-  type        = string
-  default     = "/"
-}
-
-
 source "amazon-ebs" "ubuntu" {
 
   source_ami_filter {
@@ -106,19 +48,6 @@ packer {
   }
 }
 
-# source "googlecompute" "ubuntu" {
-#   project_id       = var.gcp_project_id
-#   source_image     = "ubuntu-2404-lts"
-#   zone             = "us-central1-a"
-#   image_name       = "custom-ubuntu-24-04-${timestamp()}"
-#   image_family     = "custom-ubuntu-24-04"
-#   machine_type     = "n1-standard-1"
-#   image_storage_locations = ["us"]
-#   labels = {
-#     env = "dev"
-#   }
-# }
-
 build {
   sources = [
     "source.amazon-ebs.ubuntu",
@@ -158,7 +87,7 @@ build {
       "sudo -u csye6225 unzip /tmp/webapp.zip -d /home/csye6225/app",
       "sudo -u csye6225 ls -la /home/csye6225/app",
       "cd /home/csye6225/app && sudo -u csye6225 npm install",
-      
+
     ]
   }
 

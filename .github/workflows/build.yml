@@ -101,11 +101,11 @@ jobs:
 
       - name: Initialize Packer
         run: |
-          packer init packer/variables.pkr.hcl
+          packer init .
 
       - name: Validate Packer Template
         run: |
-          packer validate packer/variables.pkr.hcl
+          packer validate .
 
       - name: Check downloaded files
         run: ls -lah /tmp  # Ensure webapp.zip is present
@@ -124,6 +124,12 @@ jobs:
           DB_USER: ${{ secrets.DB_USER }}
           DB_NAME: ${{ secrets.DB_NAME }}
           DB_DIALECT: ${{ secrets.DB_DIALECT }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          GCP_ZONE: ${{ secrets.GCP_ZONE }}
+          GCP_INSTANCE_TYPE: ${{ secrets.GCP_INSTANCE_TYPE }}
+          ARTIFACT_PATH: ${{ secrets.ARTIFACT_PATH }}
+          AWS_INSTANCE_TYPE: ${{ secrets.AWS_INSTANCE_TYPE }}
         run: |
           set -e
-          packer build -var "db_password=$DB_PASSWORD" -var "db_host=$DB_HOST" -var "db_user=$DB_USER" -var "db_name=$DB_NAME" -var "db_dialect=$DB_DIALECT" -var "artifact_path=/tmp/webapp.zip" packer/variables.pkr.hcl || exit 1
+          packer build packer/ || exit 1
