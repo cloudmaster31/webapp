@@ -112,40 +112,41 @@ build {
     "sudo apt-get install -y nodejs",
 
     # Set environment variables
-    "sudo bash -c 'echo \"DB_NAME=cloud\" >> /etc/environment'",
-    "sudo bash -c 'echo \"DB_USER=postgres\" >> /etc/environment'",
-    "sudo bash -c 'echo \"DB_PASSWORD=1234\" >> /etc/environment'",
-    "sudo bash -c 'echo \"DB_HOST=localhost\" >> /etc/environment'",
-    "sudo bash -c 'echo \"DB_DIALECT=postgres\" >> /etc/environment'",
+    "echo 'DB_NAME=cloud' | sudo tee -a /etc/environment",
+    "echo 'DB_USER=postgres' | sudo tee -a /etc/environment",
+    "echo 'DB_PASSWORD=1234' | sudo tee -a /etc/environment",
+    "echo 'DB_HOST=localhost' | sudo tee -a /etc/environment",
+    "echo 'DB_DIALECT=postgres' | sudo tee -a /etc/environment",
     
     # Load environment variables
     "export $(cat /etc/environment | xargs)",
 
     # Create user and group
-    "sudo useradd -m -s /usr/sbin/nologin csye6225 || true",
+    "sudo useradd -m -s /bin/bash csye6225 || true",
     "sudo groupadd -f csye6225",
     "sudo usermod -aG csye6225 csye6225",
 
     # Create application directory
     "sudo mkdir -p /home/csye6225/app",
     "sudo chown -R csye6225:csye6225 /home/csye6225",
-    "sudo chmod -R 755 /home/csye6225/app",
+    "sudo chmod -R 755 /home/csye6225",
 
-    # Verify directory creation
-    "ls -ld /home/csye6225/app",
+    # Verify directory permissions
+    "sudo ls -ld /home/csye6225 /home/csye6225/app",
 
-    # Unzip application artifacts
-    "sudo unzip ${var.artifact_path} -d /home/csye6225/app",
-    
+    # Unzip application artifacts as csye6225 user
+    "sudo -u csye6225 unzip ${var.artifact_path} -d /home/csye6225/app",
+
     # Verify extraction
-    "ls -la /home/csye6225/app",
+    "sudo -u csye6225 ls -la /home/csye6225/app",
 
-    # Change to application directory as csye6225 user
+    # Change to application directory
     "sudo -u csye6225 bash -c 'cd /home/csye6225/app && ls -la'",
 
     # Change to webapp directory
     "sudo -u csye6225 bash -c 'cd /home/csye6225/app/webapp && ls -la'"
   ]
 }
+
 
 }
