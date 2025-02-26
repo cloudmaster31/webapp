@@ -22,8 +22,23 @@ jobs:
       continue-on-error: true  # This allows failure to proceed to the next step
     - name: Run packer init
       run: |
-        packer init packer/variables.pkr.hcl
+        packer init .
+
+    - name: Export Environment Variables from Secrets
+      run: |
+        echo "PKR_VAR_db_user=${{ secrets.DB_USER }}" >> $GITHUB_ENV
+        echo "PKR_VAR_db_password=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
+        echo "PKR_VAR_db_name=${{ secrets.DB_NAME }}" >> $GITHUB_ENV
+        echo "PKR_VAR_db_host=${{ secrets.DB_HOST }}" >> $GITHUB_ENV
+        echo "PKR_VAR_db_dialect=${{ secrets.DB_DIALECT }}" >> $GITHUB_ENV
+        echo "PKR_VAR_aws_region=${{ secrets.AWS_REGION }}" >> $GITHUB_ENV
+        echo "PKR_VAR_aws_instance_type=${{ secrets.AWS_INSTANCE_TYPE }}" >> $GITHUB_ENV
+        echo "PKR_VAR_gcp_project_id=${{ secrets.GCP_PROJECT_ID }}" >> $GITHUB_ENV
+        echo "PKR_VAR_gcp_zone=${{ secrets.GCP_ZONE }}" >> $GITHUB_ENV
+        echo "PKR_VAR_gcp_instance_type=${{ secrets.GCP_INSTANCE_TYPE }}" >> $GITHUB_ENV
+        echo "PKR_VAR_artifact_path=${{ secrets.ARTIFACT_PATH }}" >> $GITHUB_ENV
+
     - name: Run packer validate
       run: |
-        packer validate packer/variables.pkr.hcl
+        packer validate .
       continue-on-error: false  # This will stop execution if validation fails
