@@ -17,12 +17,17 @@ variable "gcp_instance_type" {
   default = "n1-standard-1"
 }
 variable "gcp_zone" {
-  default = "us-central1-a"
+  default = "us-central1-b"
 }
 variable "artifact_path" {
   description = "Path to the artifact"
   type        = string
   default     = "/tmp/webapp.zip"
+}
+
+provisioner "file" {
+  source      = "${var.artifact_path}"   # File on the GitHub Actions runner
+  destination = "/tmp/webapp.zip"        # Destination inside the VM
 }
 source "amazon-ebs" "ubuntu" {
  
