@@ -53,6 +53,9 @@ build {
     "source.amazon-ebs.ubuntu",
     "source.googlecompute.ubuntu"
   ]
+  concurrency = 2
+
+  on_failure = "abort"
 
   provisioner "file" {
     source      = var.artifact_path

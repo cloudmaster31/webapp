@@ -1,8 +1,7 @@
 name: Build and Deploy Packer Image
 
 on:
-  pull_request:
-    types: [closed]
+  push:
     branches:
       - main
 
