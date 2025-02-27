@@ -53,7 +53,6 @@ build {
     "source.amazon-ebs.ubuntu",
     "source.googlecompute.ubuntu"
   ]
-  on_failure = "cleanup"
 
   provisioner "file" {
     source      = var.artifact_path

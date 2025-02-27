@@ -138,4 +138,4 @@ jobs:
       - name: Run Packer Build
         run: |
           set -e
-          packer build packer/ || exit 1
+          packer build -on-error=abort packer/ || exit 1
