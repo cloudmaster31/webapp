@@ -5,6 +5,7 @@ source "amazon-ebs" "ubuntu" {
       name                = "ubuntu-*-24.04-*"
       root-device-type    = "ebs"
       virtualization-type = "hvm"
+      architecture        = "x86_64"
     }
     owners      = ["099720109477"]
     most_recent = true
