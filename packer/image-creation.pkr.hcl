@@ -53,7 +53,6 @@ build {
     "source.amazon-ebs.ubuntu",
     "source.googlecompute.ubuntu"
   ]
-  concurrency = 2
   on_failure = "cleanup"
 
   provisioner "file" {
