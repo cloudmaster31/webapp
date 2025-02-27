@@ -8,6 +8,7 @@ on:
 
 jobs:
   test-and-build:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     services:
@@ -57,6 +58,7 @@ jobs:
 
 
   build-and-deploy:
+    if: github.event.pull_request.merged == true
     needs: test-and-build
     runs-on: ubuntu-latest
 
@@ -136,4 +138,4 @@ jobs:
       - name: Run Packer Build
         run: |
           set -e
-          packer build packer/ || exit 1
+          packer build -on-error=abort packer/ || exit 1
