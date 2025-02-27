@@ -1,12 +1,14 @@
 name: Build and Deploy Packer Image
 
 on:
-  push:
+  pull_request:
+    types: [closed]
     branches:
       - main
 
 jobs:
   test-and-build:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     services:
@@ -56,6 +58,7 @@ jobs:
 
 
   build-and-deploy:
+    if: github.event.pull_request.merged == true
     needs: test-and-build
     runs-on: ubuntu-latest
 
