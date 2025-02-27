@@ -54,8 +54,7 @@ build {
     "source.googlecompute.ubuntu"
   ]
   concurrency = 2
-
-  on_failure = "abort"
+  on_failure = "cleanup"
 
   provisioner "file" {
     source      = var.artifact_path
