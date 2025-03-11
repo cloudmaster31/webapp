@@ -63,7 +63,7 @@ build {
   provisioner "shell" {
     inline = [
       "export DEBIAN_FRONTEND=noninteractive",
-      "sudo apt update && sudo apt install -y apt-utils",
+      "sudo apt update && sudo apt install -y --fix-missing apt-utils",
       "sudo apt upgrade -y",
       "sudo apt install -y postgresql",
       "sudo systemctl enable --now postgresql",
