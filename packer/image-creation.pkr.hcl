@@ -9,7 +9,7 @@ source "amazon-ebs" "ubuntu" {
     }
     owners      = ["099720109477"]
     most_recent = true
-  }
+        }
   instance_type = var.aws_instance_type
   ssh_username  = "ubuntu"
   ami_name      = "custom-ubuntu-24.04"
