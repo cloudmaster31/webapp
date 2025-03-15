@@ -1,5 +1,17 @@
-source "amazon-ebs" "ubuntu" {
+packer {
+  required_plugins {
+    amazon = {
+      source  = "github.com/hashicorp/amazon"
+      version = ">= 1.0.0, < 2.0.0"
+    }
+    googlecompute = {
+      source  = "github.com/hashicorp/googlecompute"
+      version = ">= 1.0.0, < 2.0.0"
+    }
+  }
+}
 
+source "amazon-ebs" "ubuntu" {
   source_ami_filter {
     filters = {
       name                = "ubuntu-*-24.04-*"
@@ -22,30 +34,16 @@ source "amazon-ebs" "ubuntu" {
 
 source "googlecompute" "ubuntu" {
   project_id              = var.gcp_project_id
-  source_image_family     = "ubuntu-minimal-2004-lts" # Always latest in the 2004 family
+  source_image_family     = "ubuntu-minimal-2004-lts"
   zone                    = var.gcp_zone
   image_name              = "ubuntu-custom-webapp"
   image_family            = "ubuntu-minimal-webapp"
   machine_type            = var.gcp_instance_type
-  ssh_username            = "packer"        # More standard for automated provisioning
-  image_storage_locations = ["us-central1"] # More specific than just "us"
+  ssh_username            = "packer"
+  image_storage_locations = ["us-central1"]
   labels = {
     env  = "dev"
     role = "webapp"
-  }
-}
-
-
-packer {
-  required_plugins {
-    amazon-ebs = {
-      source  = "github.com/hashicorp/amazon"
-      version = ">= 1.0.0, < 2.0.0"
-    }
-    googlecompute = {
-      source  = "github.com/hashicorp/googlecompute"
-      version = ">= 1.0.0, < 2.0.0"
-    }
   }
 }
 
@@ -88,7 +86,6 @@ build {
       "sudo -u csye6225 unzip /tmp/webapp.zip -d /home/csye6225/app",
       "sudo -u csye6225 ls -la /home/csye6225/app",
       "cd /home/csye6225/app && sudo -u csye6225 npm install",
-
     ]
   }
 
@@ -124,15 +121,17 @@ build {
     ]
   }
 
-  post-processor "amazon-ami-copy" {
-    regions   = ["us-east-1"]
-    ami_users = var.aws_copy_account_id
-  }
+  post-processors {
+    post-processor "amazon-import" {
+      regions   = ["us-east-1"]
+      ami_users = var.aws_copy_account_id
+    }
 
-  post-processor "googlecompute-import" {
-    project_id        = var.gcp_target_account_id
-    source_image      = "ubuntu-custom-webapp"
-    target_image_name = "ubuntu-custom-webapp-Demo"
-    zone              = "us-central1"
+    post-processor "googlecompute-import" {
+      project_id        = var.gcp_target_account_id
+      source_image      = "ubuntu-custom-webapp"
+      target_image_name = "ubuntu-custom-webapp-Demo"
+      zone              = "us-central1"
+    }
   }
 }
