@@ -125,14 +125,14 @@ build {
   }
 
   post-processor "amazon-ami-copy" {
-    regions = ["us-east-1"]
-    ami_users = var.aws_copy_account_id 
+    regions   = ["us-east-1"]
+    ami_users = var.aws_copy_account_id
   }
 
   post-processor "googlecompute-import" {
-  project_id        = var.gcp_target_account_id
-  source_image      = "ubuntu-custom-webapp"
-  target_image_name = "ubuntu-custom-webapp-Demo"
-  zone              = "us-central1"
-}
+    project_id        = var.gcp_target_account_id
+    source_image      = "ubuntu-custom-webapp"
+    target_image_name = "ubuntu-custom-webapp-Demo"
+    zone              = "us-central1"
+  }
 }
