@@ -146,7 +146,7 @@ jobs:
       - name: Set IAM Permissions for Image Access
         run: |
           gcloud projects add-iam-policy-binding dev-project-id \
-          --member="serviceAccount:demo-service@webapp-demo-451815.iam.gserviceaccount.com" \
+          --member="serviceAccount:github-actions-service-account@webapp-demo-451815.iam.gserviceaccount.com" \
           --role="roles/compute.imageUser"
       
       - name: Create GCP Machine Image in Demo Project
