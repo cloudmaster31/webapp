@@ -64,14 +64,15 @@ build {
   provisioner "shell" {
     inline = [
       "export DEBIAN_FRONTEND=noninteractive",
-      "sudo apt update --fix-missing",
-      "sudo apt-get install -y --allow-downgrades apt=2.0.2ubuntu0.2",
-      "sudo apt-mark hold apt",
-      "sudo apt-get install -y --fix-broken apt-utils postgresql unzip curl",
+      "sudo apt-get update && sudo apt-get upgrade -y"
+      "sudo apt-get install -y apt",
+      "sudo apt-get install -y apt-utils"
       "sudo apt upgrade -y",
+      "sudo apt install -y postgresql",
       "sudo systemctl enable --now postgresql",
       "sudo systemctl start postgresql",
       "sudo -u postgres psql -c \"ALTER USER postgres WITH PASSWORD '1234';\" >/dev/null 2>&1",
+      "sudo apt install -y unzip curl",
       "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -",
       "sudo apt-get install -y nodejs",
       "echo \"DB_NAME=${var.db_name}\" | sudo tee -a /etc/environment",
