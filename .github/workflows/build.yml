@@ -146,7 +146,7 @@ jobs:
       - name: Create GCP Machine Image in Demo Project
         run: |
           gcloud compute images create ubuntu-custom-webapp \
-            --project={{ secrets.GCP_PROJECT_ID }} \
+            --project={{ secrets.GCP_TARGET_ACCOUNT_ID }} \
             --source-image=ubuntu-custom-webapp \
-            --source-image-project={{ secrets.GCP_TARGET_ACCOUNT_ID }} \
+            --source-image-project={{ secrets.GCP_PROJECT_ID }} \
 
