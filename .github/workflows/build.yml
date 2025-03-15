@@ -141,3 +141,11 @@ jobs:
         run: |
           set -e
           packer build -on-error=abort packer/ || exit 1
+      
+      - name: Create GCP Machine Image
+        run: |
+          gcloud compute images create ubuntu-custom-webapp \
+            --project=${{ secrets.GCP_TARGET_ACCOUNT_ID }} \
+            --source-image=ubuntu-custom-webapp \
+            --source-project=${{ secrets.GCP_PROJECT_ID }}
+
