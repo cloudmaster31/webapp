@@ -14,7 +14,7 @@ source "amazon-ebs" "ubuntu" {
   ssh_username  = "ubuntu"
   ami_name      = "custom-ubuntu-24.04"
   ami_groups    = []
-  ami_users     = [var.aws_account_id, var.aws_copy_account_id]
+  ami_users     = ["self", var.aws_copy_account_id]
   tags = {
     Project = "DEV"
     Owner   = "Smit"
