@@ -126,7 +126,7 @@ build {
   }
   provisioner "shell" {
     inline = [
-      "gcloud compute machine-images add-iam-policy-binding ${var.source_machine_image} --project=${var.gcp_project_id} --member=\"serviceAccount:github-actions-service-account@webapp-demo-451815.iam.gserviceaccount.com\" --role=\"roles/compute.imageUser\""
+      "gcloud compute machine-images add-iam-policy-binding ubuntu-custom-webapp --project=${var.gcp_project_id} --member=\"serviceAccount:github-actions-service-account@webapp-demo-451815.iam.gserviceaccount.com\" --role=\"roles/compute.imageUser\""
     ]
   }
 
