@@ -66,7 +66,7 @@ build {
       "export DEBIAN_FRONTEND=noninteractive",
       "sudo apt-get update && sudo apt-get upgrade -y"
       "sudo apt-get install -y apt",
-      "sudo apt-get install -y apt-utils"
+      "sudo apt-get install -y apt-utils",
       "sudo apt upgrade -y",
       "sudo apt install -y postgresql",
       "sudo systemctl enable --now postgresql",
