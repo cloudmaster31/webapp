@@ -142,11 +142,17 @@ jobs:
         run: |
           set -e
           packer build -on-error=abort packer/ || exit 1
+
+      - name: Set IAM Permissions for Image Access
+        run: |
+          gcloud projects add-iam-policy-binding dev-project-id \
+          --member="serviceAccount:demo-service@webapp-demo-451815.iam.gserviceaccount.com" \
+          --role="roles/compute.imageUser"
       
-      - name: Create GCP Machine Image
+      - name: Create GCP Machine Image in Demo Project
         run: |
           gcloud compute images create ubuntu-custom-webapp \
-            --project=${{ secrets.GCP_TARGET_ACCOUNT_ID }} \
+            --project={{ secrets.GCP_PROJECT_ID }} \
             --source-image=ubuntu-custom-webapp \
-            --source-project=${{ secrets.GCP_PROJECT_ID }}
+            --source-image-project={{ secrets.GCP_TARGET_ACCOUNT_ID }} \
 
