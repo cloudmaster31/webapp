@@ -58,3 +58,7 @@ variable "gcp_target_account_id" {
   description = "GCP account ID"
   type        = string
 }
+variable "aws_account_id" {
+  description = "AWS account ID"
+  type        = string
+}
