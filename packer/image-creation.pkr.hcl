@@ -14,6 +14,7 @@ source "amazon-ebs" "ubuntu" {
   ssh_username  = "ubuntu"
   ami_name      = "custom-ubuntu-24.04"
   ami_groups    = []
+  ami_users     = ["self", var.aws_copy_account_id]
   tags = {
     Project = "DEV"
     Owner   = "Smit"
@@ -123,4 +124,10 @@ build {
       "sudo systemctl status myapp.service || true"
     ]
   }
+  provisioner "shell" {
+    inline = [
+      "gcloud compute machine-images add-iam-policy-binding ubuntu-custom-webapp --project=${var.gcp_project_id} --member=\"serviceAccount:github-actions-service-account@webapp-demo-451815.iam.gserviceaccount.com\" --role=\"roles/compute.imageUser\""
+    ]
+  }
+
 }

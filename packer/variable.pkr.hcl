@@ -49,3 +49,12 @@ variable "artifact_path" {
   type        = string
 
 }
+
+variable "aws_copy_account_id" {
+  description = "AWS account ID"
+  type        = string
+}
+variable "gcp_target_account_id" {
+  description = "GCP account ID"
+  type        = string
+}
