@@ -63,33 +63,24 @@ build {
 
   provisioner "shell" {
     inline = [
-      "export DEBIAN_FRONTEND=noninteractive",
-      "sudo apt update && sudo apt install -y --fix-missing apt-utils",
-      "sudo apt upgrade -y",
-      "sudo apt install -y postgresql",
-      "sudo systemctl enable --now postgresql",
-      "sudo systemctl start postgresql",
-      "sudo -u postgres psql -c \"ALTER USER postgres WITH PASSWORD '1234';\" >/dev/null 2>&1",
-      "sudo apt install -y unzip curl",
-      "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -",
-      "sudo apt-get install -y nodejs",
-      "echo \"DB_NAME=${var.db_name}\" | sudo tee -a /etc/environment",
-      "echo \"DB_USER=${var.db_user}\" | sudo tee -a /etc/environment",
-      "echo \"DB_PASSWORD=${var.db_password}\" | sudo tee -a /etc/environment",
-      "echo \"DB_HOST=${var.db_host}\" | sudo tee -a /etc/environment",
-      "echo \"DB_DIALECT=${var.db_dialect}\" | sudo tee -a /etc/environment",
-      "export $(cat /etc/environment | xargs)",
-      "sudo useradd -m -s /bin/bash csye6225 || true",
-      "sudo groupadd -f csye6225",
-      "sudo usermod -aG csye6225 csye6225",
-      "sudo mkdir -p /home/csye6225/app",
-      "sudo chown -R csye6225:csye6225 /home/csye6225",
-      "sudo chmod -R 755 /home/csye6225",
-      "sudo ls -ld /home/csye6225 /home/csye6225/app",
-      "sudo -u csye6225 unzip /tmp/webapp.zip -d /home/csye6225/app",
-      "sudo -u csye6225 ls -la /home/csye6225/app",
-      "cd /home/csye6225/app && sudo -u csye6225 npm install",
+      <<EOF
+      sudo bash -c 'cat > /etc/systemd/system/myapp.service <<EOL
+      [Unit]
+      Description=My Web Application
+      After=network.target
 
+      [Service]
+      User=csye6225
+      Group=csye6225
+      WorkingDirectory=/home/csye6225/app
+      EnvironmentFile=/etc/environment
+      ExecStart=/usr/bin/env node /home/csye6225/app/index.js
+      Restart=always
+
+      [Install]
+      WantedBy=multi-user.target
+      EOL'
+      EOF
     ]
   }
 
@@ -122,11 +113,6 @@ build {
       "sudo systemctl enable myapp.service",
       "sudo systemctl start myapp.service",
       "sudo systemctl status myapp.service || true"
-    ]
-  }
-  provisioner "shell" {
-    inline = [
-      "gcloud compute machine-images add-iam-policy-binding ubuntu-custom-webapp --project=${var.gcp_project_id} --member=\"serviceAccount:github-actions-service-account@webapp-demo-451815.iam.gserviceaccount.com\" --role=\"roles/compute.imageUser\""
     ]
   }
 
