@@ -120,7 +120,8 @@ jobs:
           echo "PKR_VAR_artifact_path=${{ secrets.ARTIFACT_PATH }}" >> $GITHUB_ENV
           echo "PKR_VAR_gcp_target_account_id=${{ secrets.GCP_TARGET_ACCOUNT_ID }}" >> $GITHUB_ENV
           echo "PKR_VAR_aws_copy_account_id=${{ secrets.AWS_COPY_ACCOUNT_ID }}" >> $GITHUB_ENV
-      
+          echo "PKR_VAR_aws_account_id=${{ secrets.AWS_ACCOUNT_ID }}" >> $GITHUB_ENV
+
     
       - name: Validate Packer Template
         run: |
