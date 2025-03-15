@@ -1,17 +1,5 @@
-packer {
-  required_plugins {
-    amazon = {
-      source  = "github.com/hashicorp/amazon"
-      version = ">= 1.0.0, < 2.0.0"
-    }
-    googlecompute = {
-      source  = "github.com/hashicorp/googlecompute"
-      version = ">= 1.0.0, < 2.0.0"
-    }
-  }
-}
-
 source "amazon-ebs" "ubuntu" {
+
   source_ami_filter {
     filters = {
       name                = "ubuntu-*-24.04-*"
@@ -26,6 +14,7 @@ source "amazon-ebs" "ubuntu" {
   ssh_username  = "ubuntu"
   ami_name      = "custom-ubuntu-24.04"
   ami_groups    = []
+  ami_users     = [var.aws_account_id, var.aws_copy_account_id]
   tags = {
     Project = "DEV"
     Owner   = "Smit"
@@ -34,16 +23,30 @@ source "amazon-ebs" "ubuntu" {
 
 source "googlecompute" "ubuntu" {
   project_id              = var.gcp_project_id
-  source_image_family     = "ubuntu-minimal-2004-lts"
+  source_image_family     = "ubuntu-minimal-2004-lts" # Always latest in the 2004 family
   zone                    = var.gcp_zone
   image_name              = "ubuntu-custom-webapp"
   image_family            = "ubuntu-minimal-webapp"
   machine_type            = var.gcp_instance_type
-  ssh_username            = "packer"
-  image_storage_locations = ["us-central1"]
+  ssh_username            = "packer"        # More standard for automated provisioning
+  image_storage_locations = ["us-central1"] # More specific than just "us"
   labels = {
     env  = "dev"
     role = "webapp"
+  }
+}
+
+
+packer {
+  required_plugins {
+    amazon-ebs = {
+      source  = "github.com/hashicorp/amazon"
+      version = ">= 1.0.0, < 2.0.0"
+    }
+    googlecompute = {
+      source  = "github.com/hashicorp/googlecompute"
+      version = ">= 1.0.0, < 2.0.0"
+    }
   }
 }
 
@@ -86,6 +89,7 @@ build {
       "sudo -u csye6225 unzip /tmp/webapp.zip -d /home/csye6225/app",
       "sudo -u csye6225 ls -la /home/csye6225/app",
       "cd /home/csye6225/app && sudo -u csye6225 npm install",
+
     ]
   }
 
@@ -120,18 +124,10 @@ build {
       "sudo systemctl status myapp.service || true"
     ]
   }
-
-  post-processors {
-    post-processor "amazon-import" {
-      regions   = ["us-east-1"]
-      ami_users = var.aws_copy_account_id
-    }
-
-    post-processor "googlecompute-import" {
-      project_id        = var.gcp_target_account_id
-      source_image      = "ubuntu-custom-webapp"
-      target_image_name = "ubuntu-custom-webapp-Demo"
-      zone              = "us-central1"
-    }
+  provisioner "shell" {
+    inline = [
+      "gcloud compute machine-images add-iam-policy-binding ${var.source_machine_image} --project=${var.gcp_project_id} --member=\"serviceAccount:github-actions-service-account@webapp-demo-451815.iam.gserviceaccount.com\" --role=\"roles/compute.imageUser\""
+    ]
   }
+
 }
