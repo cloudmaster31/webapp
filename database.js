@@ -1,4 +1,5 @@
 const { Sequelize, DataTypes } = require("sequelize");
+const AWS = require("aws-sdk");
 require("dotenv").config();
 
 const dbName = process.env.DB_NAME;
@@ -59,6 +60,34 @@ const HealthCheck = sequelize.define(
   }
 );
 
+
+const FileMetadata = sequelize.define(
+  "FileMetadata",
+  {
+    id: {
+      type: DataTypes.UUID,
+      primaryKey: true,
+    },
+    filename: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    s3_path: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+  },
+  {
+    tableName: "file_metadata",
+    timestamps: false,
+  }
+);
+
+const s3 = new AWS.S3({
+  region: process.env.AWS_REGION,
+});
+
+
 async function connectDatabase() {
 
   await ensureDatabaseExists(dbName);
@@ -66,6 +95,7 @@ async function connectDatabase() {
     await sequelize.authenticate();
     console.log(`Connected to database: ${dbName}`);
     await HealthCheck.sync(); 
+    await FileMetadata.sync();
     console.log("Database synced successfully.");
   } catch (error) {
     console.error("Database connection error:", error);
@@ -73,4 +103,4 @@ async function connectDatabase() {
   }
 }
 
-module.exports = { sequelize, HealthCheck, connectDatabase }; 
+module.exports = { sequelize, HealthCheck, connectDatabase,FileMetadata,s3 }; 
