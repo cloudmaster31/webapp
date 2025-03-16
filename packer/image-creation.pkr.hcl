@@ -63,17 +63,27 @@ build {
 
   provisioner "shell" {
     inline = [
+      "export DEBIAN_FRONTEND=noninteractive",
+
+      # Ensure no APT processes are running
+      "while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1; do echo 'Waiting for dpkg lock...'; sleep 3; done",
+      "while sudo fuser /var/lib/apt/lists/lock >/dev/null 2>&1; do echo 'Waiting for apt lock...'; sleep 3; done",
+      "while sudo fuser /var/cache/apt/archives/lock >/dev/null 2>&1; do echo 'Waiting for apt cache lock...'; sleep 3; done",
+
+      # Kill any stuck apt/dpkg processes
+      "sudo killall -9 apt apt-get dpkg 2>/dev/null || true",
+
+      # Clean up package lists and cache
+      "sudo rm -rf /var/lib/apt/lists/*",
       "sudo apt-get clean",
       "sudo apt-get update --fix-missing",
-      "sudo apt-get upgrade -y",
-      # Unhold apt if it's locked in a previous version
-      "sudo apt-mark unhold apt",
-      # Install apt and apt-utils properly
-      "sudo apt-get install -y --allow-downgrades apt",
-      "sudo apt-get install -y apt-utils",
 
-      # Fix broken dependencies
-      "sudo apt-get install -f -y",
+      # Ensure apt-utils is installed safely
+      "sudo apt-get install -y --fix-broken apt-utils",
+
+      # Perform a safe upgrade
+      "sudo apt-get dist-upgrade -y",
+
       "sudo apt install -y postgresql",
       "sudo systemctl enable --now postgresql",
       "sudo systemctl start postgresql",
