@@ -63,11 +63,17 @@ build {
 
   provisioner "shell" {
     inline = [
-      "export DEBIAN_FRONTEND=noninteractive",
-      "sudo apt-get update && sudo apt-get upgrade -y",
-      "sudo apt-get install -y apt",
+      "sudo apt-get clean",
+      "sudo apt-get update --fix-missing",
+      "sudo apt-get upgrade -y",
+      # Unhold apt if it's locked in a previous version
+      "sudo apt-mark unhold apt",
+      # Install apt and apt-utils properly
+      "sudo apt-get install -y --allow-downgrades apt",
       "sudo apt-get install -y apt-utils",
-      "sudo apt upgrade -y",
+
+      # Fix broken dependencies
+      "sudo apt-get install -f -y",
       "sudo apt install -y postgresql",
       "sudo systemctl enable --now postgresql",
       "sudo systemctl start postgresql",
