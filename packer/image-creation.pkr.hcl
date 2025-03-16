@@ -23,7 +23,7 @@ source "amazon-ebs" "ubuntu" {
 
 source "googlecompute" "ubuntu" {
   project_id              = var.gcp_project_id
-  source_image_family     = "ubuntu-2004-lts"
+  source_image_family     = "ubuntu-minimal-2004-lts" 
   zone                    = var.gcp_zone
   image_name              = "ubuntu-custom-webapp"
   image_family            = "ubuntu-minimal-webapp"
@@ -64,9 +64,8 @@ build {
   provisioner "shell" {
     inline = [
       "export DEBIAN_FRONTEND=noninteractive",
-      "sudo apt update -y",
+      "sudo apt update && sudo apt install -y apt-utils",
       "sudo apt upgrade -y",
-      "sudo apt install -y apt-utils",
       "sudo apt install -y postgresql",
       "sudo systemctl enable --now postgresql",
       "sudo systemctl start postgresql",
