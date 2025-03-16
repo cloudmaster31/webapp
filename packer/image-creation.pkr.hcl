@@ -71,7 +71,7 @@ build {
       # Install apt and apt-utils properly
       "sudo apt-get install -y --allow-downgrades apt",
       "sudo apt-get install -y apt-utils",
-      
+
       # Fix broken dependencies
       "sudo apt-get install -f -y",
       "sudo apt install -y postgresql",
