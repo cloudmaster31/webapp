@@ -65,7 +65,12 @@ build {
     inline = [
       "export DEBIAN_FRONTEND=noninteractive",
       "sudo apt update",
-      "[[ $(uname -a) == *'Debian'* ]] && sudo apt install -y apt-utils || true", # Install apt-utils only if required
+      "if ! curl -fsSL -m 2 http://169.254.169.254/latest/meta-data >/dev/null 2>&1; then",
+      "  echo 'Not on AWS, installing apt-utils...';",
+      "  sudo apt install -y apt-utils;",
+      "else",
+      "  echo 'Skipping apt-utils (running on AWS)';",
+      "fi",
       "sudo apt upgrade -y",
       # "sudo apt install -y postgresql",
       # "sudo systemctl enable --now postgresql",
