@@ -12,12 +12,24 @@ const rootSequelize = new Sequelize("postgres", dbUser, dbPassword, {
   host: dbHost,
   dialect: dbDialect,
   logging: false,
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false,
+    },
+  },
 });
 
 const sequelize = new Sequelize(dbName, dbUser, dbPassword, {
   host: dbHost,
   dialect: dbDialect,
   logging: false,
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false,
+    },
+  },
 });
 async function ensureDatabaseExists(dbName) {
   try {
