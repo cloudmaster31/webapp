@@ -70,7 +70,7 @@ build {
       "  sudo apt install -y apt-utils;",
       "else",
       "  echo 'Skipping apt-utils (running on AWS)';",
-      "fi"
+      "fi",
       "sudo apt upgrade -y",
       # "sudo apt install -y postgresql",
       # "sudo systemctl enable --now postgresql",
