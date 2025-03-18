@@ -64,7 +64,8 @@ build {
   provisioner "shell" {
     inline = [
       "export DEBIAN_FRONTEND=noninteractive",
-      "sudo apt update && sudo apt install -y apt-utils",
+      "sudo apt update",
+      "[[ $(uname -a) == *'Debian'* ]] && sudo apt install -y apt-utils || true", # Install apt-utils only if required
       "sudo apt upgrade -y",
       # "sudo apt install -y postgresql",
       # "sudo systemctl enable --now postgresql",
