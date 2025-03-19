@@ -28,8 +28,8 @@ source "googlecompute" "ubuntu" {
   image_name              = "ubuntu-custom-webapp"
   image_family            = "ubuntu-minimal-webapp"
   machine_type            = var.gcp_instance_type
-  ssh_username            = "packer"        # More standard for automated provisioning
-  image_storage_locations = ["us-central1"] # More specific than just "us"
+  ssh_username            = "packer"        
+  image_storage_locations = ["us-central1"]
   labels = {
     env  = "dev"
     role = "webapp"

@@ -30,6 +30,7 @@ app.post("/v1/file", upload.single("profilePic"), async (req, res) => {
   if (!req.file) {
     return res.status(400).end();
   }
+  res.set("Cache-Control", "no-cache");
 
   const fileId = uuidv4();
   const fileKey = `${fileId}/${req.file.originalname}`;
@@ -67,7 +68,7 @@ app.get("/v1/file/:id", async (req, res) => {
     if (!file) {
       return res.status(404).end();
     }
-
+    res.set("Cache-Control", "no-cache");
     res.json({
       file_name: file.filename,
       id: file.id,
