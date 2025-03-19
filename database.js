@@ -88,10 +88,15 @@ const FileMetadata = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: Sequelize.NOW, 
+    },
   },
   {
     tableName: "file_metadata",
-    timestamps: false,
+    timestamps: true,
   }
 );
 

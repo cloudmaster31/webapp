@@ -1,114 +1,122 @@
 const express = require("express");
 const multer = require("multer");
 const { v4: uuidv4 } = require("uuid");
-
-const { sequelize, HealthCheck,s3,FileMetadata } = require("./database"); // Import HealthCheck model.
+const { sequelize, HealthCheck, s3, FileMetadata } = require("./database");
 
 const app = express();
 const bucketName = process.env.S3_BUCKET;
-const upload = multer({ storage: multer.memoryStorage() }); // Store files in memory before uploading to S3
+const upload = multer({ storage: multer.memoryStorage() });
 
-// GET API Call
+// Health Check Endpoint
 app.get("/healthz", async (req, res) => {
   try {
-    if (req.get("Content-Length") > 0) {
-      return res.status(400).end();
-    }
-    if (Object.keys(req.query).length > 0) {
+    if (req.get("Content-Length") > 0 || Object.keys(req.query).length > 0) {
       return res.status(400).end();
     }
     res.set("Cache-Control", "no-cache");
 
     await sequelize.authenticate();
+    await HealthCheck.create({});
     
-    const result = await HealthCheck.create({});
-    console.log(`Entry added with ID: ${result.checkId}`);
-
     res.status(200).end();
   } catch (error) {
-    console.error("Error in health check:", error);
+    console.error("Health check failed:", error);
     res.status(503).end();
   }
 });
 
-app.post("/v1/file", upload.single("file"), async (req, res) => {
+// Upload File Endpoint
+app.post("/v1/file", upload.single("profilePic"), async (req, res) => {
   if (!req.file) {
-    return res.status(400).json({ error: "No file uploaded" });
+    return res.status(400).end();
   }
 
   const fileId = uuidv4();
-  const fileKey = `${fileId}-${req.file.originalname}`;
-
-  const params = {
-    Bucket: bucketName,
-    Key: fileKey,
-    Body: req.file.buffer,
-    ContentType: req.file.mimetype,
-  };
-
+  const fileKey = `${fileId}/${req.file.originalname}`;
+  
   try {
-    await s3.upload(params).promise();
+    await s3.upload({
+      Bucket: bucketName,
+      Key: fileKey,
+      Body: req.file.buffer,
+      ContentType: req.file.mimetype,
+    }).promise();
 
-    // Save file metadata in DB
     const file = await FileMetadata.create({
       id: fileId,
       filename: req.file.originalname,
       s3_path: fileKey,
     });
 
-    res.status(201).json({ id: file.id, filename: file.filename, s3_path: file.s3_path });
+    res.status(201).json({
+      file_name: file.filename,
+      id: file.id,
+      url: file.s3_path,
+      upload_date: new Date().toISOString(),
+    });
   } catch (error) {
     console.error("File upload error:", error);
-    res.status(500).json({ error: "Failed to upload file" });
+    res.status(500).end();
   }
 });
 
-// Retrieve File Metadata
+// Retrieve File Metadata Endpoint
 app.get("/v1/file/:id", async (req, res) => {
   try {
     const file = await FileMetadata.findByPk(req.params.id);
     if (!file) {
-      return res.status(404).json({ error: "File not found" });
+      return res.status(404).end();
     }
 
-    res.json({ id: file.id, filename: file.filename, s3_path: file.s3_path });
+    res.json({
+      file_name: file.filename,
+      id: file.id,
+      url: file.s3_path,
+      upload_date: file.createdAt.toISOString(),
+    });
   } catch (error) {
     console.error("Error retrieving file:", error);
-    res.status(500).json({ error: "Failed to retrieve file" });
+    res.status(500).end();
   }
 });
 
-// Delete File from S3 & Database
+// Delete File Endpoint
 app.delete("/v1/file/:id", async (req, res) => {
   try {
     const file = await FileMetadata.findByPk(req.params.id);
     if (!file) {
-      return res.status(404).json({ error: "File not found" });
+      return res.status(404).end();
     }
 
-    // Delete from S3
     await s3.deleteObject({ Bucket: bucketName, Key: file.s3_path }).promise();
-
-    // Delete from database
     await file.destroy();
 
     res.status(204).send();
   } catch (error) {
     console.error("File deletion error:", error);
-    res.status(500).json({ error: "Failed to delete file" });
+    res.status(500).end();  
   }
 });
 
-
-// Handle other calls
 app.all("/healthz", async (req, res) => {
   res.set("Cache-Control", "no-cache");
   res.status(405).send();
 });
+
+app.all("/v1/file", async (req, res) => {
+  res.set("Cache-Control", "no-cache");
+  res.status(400).send();
+});
+app.all("/v1/file/:id", async (req, res) => {
+  res.set("Cache-Control", "no-cache");
+  res.status(405).send();
+});
+
 app.use((req, res) => {
   res.set("Cache-Control", "no-cache");
   res.status(404).end();
 });
+
 
 
 module.exports = app;
