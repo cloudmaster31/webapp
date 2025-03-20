@@ -53,7 +53,7 @@ app.post("/v1/file", upload.single("profilePic"), async (req, res) => {
       file_name: file.filename,
       id: file.id,
       url: file.s3_path,
-      upload_date: new Date().toISOString(),
+      upload_date: new Date().getDate().toISOString(),
     });
   } catch (error) {
     console.error("File upload error:", error);
@@ -106,7 +106,11 @@ app.all("/healthz", async (req, res) => {
 
 app.all("/v1/file", async (req, res) => {
   res.set("Cache-Control", "no-cache");
-  res.status(400).send();
+  if (req.method === "GET" || req.method === "DELETE") {
+    res.status(400).send();
+  } else {
+    res.status(405).send();
+  }
 });
 app.all("/v1/file/:id", async (req, res) => {
   res.set("Cache-Control", "no-cache");
