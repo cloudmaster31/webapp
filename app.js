@@ -73,7 +73,7 @@ app.get("/v1/file/:id", async (req, res) => {
       file_name: file.filename,
       id: file.id,
       url: file.s3_path,
-      upload_date: file.createdAt.toISOString(),
+      upload_date: file.createdAt,
     });
   } catch (error) {
     console.error("Error retrieving file:", error);
