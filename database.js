@@ -89,7 +89,7 @@ const FileMetadata = sequelize.define(
       allowNull: false,
     },
     createdAt: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATEONLY,
       allowNull: false,
       defaultValue: Sequelize.NOW, 
     },
