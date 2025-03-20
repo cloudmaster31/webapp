@@ -53,7 +53,7 @@ app.post("/v1/file", upload.single("profilePic"), async (req, res) => {
       file_name: file.filename,
       id: file.id,
       url: file.s3_path,
-      upload_date: new Date().getDate().toISOString(),
+      upload_date: new Intl.DateTimeFormat('en-CA').format(new Date()), // Output: "2025-03-19"
     });
   } catch (error) {
     console.error("File upload error:", error);
