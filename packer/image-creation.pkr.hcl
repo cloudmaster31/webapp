@@ -81,7 +81,7 @@ build {
       "sudo apt install -y unzip curl",
       "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -",
       "sudo apt-get install -y nodejs",
-      "curl -o /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb"
+      "curl -o /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb",
       "sudo dpkg -i -E /tmp/amazon-cloudwatch-agent.deb",
       "echo \"DB_DIALECT=${var.db_dialect}\" | sudo tee -a /etc/environment",
       "export $(cat /etc/environment | xargs)",
