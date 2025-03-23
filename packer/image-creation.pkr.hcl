@@ -93,7 +93,10 @@ build {
       "sudo -u csye6225 unzip /tmp/webapp.zip -d /home/csye6225/app",
       "sudo -u csye6225 ls -la /home/csye6225/app",
       "cd /home/csye6225/app && sudo -u csye6225 npm install",
-
+      "sudo yum install -y amazon-cloudwatch-agent || sudo apt install -y amazon-cloudwatch-agent",
+      "sudo mkdir -p /var/log/node",
+      "sudo touch /var/log/node/csye6225.log",
+      "sudo chmod 644 /var/log/node/csye6225.log",
     ]
   }
 
