@@ -114,29 +114,6 @@ build {
       Group=csye6225
       WorkingDirectory=/home/csye6225/app
       EnvironmentFile=/etc/environment
-      ExecStart=/usr/bin/env node /home/csye6225/app/index.js
-      Restart=always
-
-      [Install]
-      WantedBy=multi-user.target
-      EOL'
-      EOF
-    ]
-  }
-
-  provisioner "shell" {
-    inline = [
-      <<EOF
-      sudo bash -c 'cat > /etc/systemd/system/myapp.service <<EOL
-      [Unit]
-      Description=My Web Application
-      After=network.target
-
-      [Service]
-      User=csye6225
-      Group=csye6225
-      WorkingDirectory=/home/csye6225/app
-      EnvironmentFile=/etc/environment
       ExecStart=/usr/bin/env node /home/csye6225/app/index.js >> /var/log/node/csye6225.log 2>&1
       Restart=always
       StandardOutput=append:/var/log/node/csye6225.log
