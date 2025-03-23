@@ -2,6 +2,7 @@ const express = require("express");
 const multer = require("multer");
 const { v4: uuidv4 } = require("uuid");
 const { sequelize, HealthCheck, s3, FileMetadata } = require("./database");
+// const {logToCloudWatch} = require("./cloudwatch-logger");
 
 const app = express();
 const bucketName = process.env.S3_BUCKET;
@@ -17,9 +18,11 @@ app.get("/healthz", async (req, res) => {
 
     await sequelize.authenticate();
     await HealthCheck.create({});
-    
+    console.log("Health check passed");
+
     res.status(200).end();
   } catch (error) {
+    // logToCloudWatch("ERROR", `Health check failed: ${error.message}`);
     console.error("Health check failed:", error);
     res.status(503).end();
   }
@@ -48,7 +51,7 @@ app.post("/v1/file", upload.single("profilePic"), async (req, res) => {
       filename: req.file.originalname,
       s3_path: fileKey,
     });
-
+    console.log("File uploaded successfully:", fileKey);
     res.status(201).json({
       file_name: file.filename,
       id: file.id,
@@ -69,6 +72,7 @@ app.get("/v1/file/:id", async (req, res) => {
       return res.status(404).end();
     }
     res.set("Cache-Control", "no-cache");
+    console.log("File retrieved successfully:", file.s3_path);
     res.json({
       file_name: file.filename,
       id: file.id,
@@ -91,7 +95,7 @@ app.delete("/v1/file/:id", async (req, res) => {
 
     await s3.deleteObject({ Bucket: bucketName, Key: file.s3_path }).promise();
     await file.destroy();
-
+    console.log("File deleted successfully:", file.s3_path);
     res.status(204).send();
   } catch (error) {
     console.error("File deletion error:", error);
