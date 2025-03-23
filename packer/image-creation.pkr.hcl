@@ -94,7 +94,7 @@ build {
       "sudo -u csye6225 ls -la /home/csye6225/app",
       "cd /home/csye6225/app && sudo -u csye6225 npm install",
       "curl -O https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb",
-      "sudo dpkg -i -E amazon-cloudwatch-agent.deb",      
+      "sudo dpkg -i -E amazon-cloudwatch-agent.deb",
       "sudo mkdir -p /var/log/node",
       "sudo touch /var/log/node/csye6225.log",
       "sudo chmod 644 /var/log/node/csye6225.log",
