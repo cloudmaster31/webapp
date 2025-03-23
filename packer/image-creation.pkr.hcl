@@ -137,8 +137,10 @@ build {
       Group=csye6225
       WorkingDirectory=/home/csye6225/app
       EnvironmentFile=/etc/environment
-      ExecStart=/usr/bin/env node /home/csye6225/app/index.js
+      ExecStart=/usr/bin/env node /home/csye6225/app/index.js >> /var/log/node/csye6225.log 2>&1
       Restart=always
+      StandardOutput=append:/var/log/node/csye6225.log
+      StandardError=append:/var/log/node/csye6225.log
 
       [Install]
       WantedBy=multi-user.target
