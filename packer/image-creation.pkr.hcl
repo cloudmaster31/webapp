@@ -81,6 +81,8 @@ build {
       "sudo apt install -y unzip curl",
       "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -",
       "sudo apt-get install -y nodejs",
+      "curl -o /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb"
+      "sudo dpkg -i -E /tmp/amazon-cloudwatch-agent.deb",
       "echo \"DB_DIALECT=${var.db_dialect}\" | sudo tee -a /etc/environment",
       "export $(cat /etc/environment | xargs)",
       "sudo useradd -m -s /bin/bash csye6225 || true",
@@ -93,8 +95,6 @@ build {
       "sudo -u csye6225 unzip /tmp/webapp.zip -d /home/csye6225/app",
       "sudo -u csye6225 ls -la /home/csye6225/app",
       "cd /home/csye6225/app && sudo -u csye6225 npm install",
-      "curl -O https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb",
-      "sudo dpkg -i -E amazon-cloudwatch-agent.deb",
       "sudo mkdir -p /var/log/node",
       "sudo touch /var/log/node/csye6225.log",
       "sudo chmod 644 /var/log/node/csye6225.log",
