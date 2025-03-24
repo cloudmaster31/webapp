@@ -12,17 +12,18 @@ const upload = multer({ storage: multer.memoryStorage() });
 app.get("/healthz", async (req, res) => {
   try {
     if (req.get("Content-Length") > 0 || Object.keys(req.query).length > 0) {
+      logToCloudWatch("WARN", "Invalid health check request received");
       return res.status(400).end();
     }
     res.set("Cache-Control", "no-cache");
 
     await sequelize.authenticate();
     await HealthCheck.create({});
-    console.log("Health check passed");
+    logToCloudWatch("INFO", "Health check passed");
 
     res.status(200).end();
   } catch (error) {
-    // logToCloudWatch("ERROR", `Health check failed: ${error.message}`);
+    logToCloudWatch("ERROR", `Health check failed: ${error.message}`, error);
     console.error("Health check failed:", error);
     res.status(503).end();
   }
@@ -31,6 +32,7 @@ app.get("/healthz", async (req, res) => {
 // Upload File Endpoint
 app.post("/v1/file", upload.single("profilePic"), async (req, res) => {
   if (!req.file) {
+    logToCloudWatch("WARN", "File upload request missing file");
     return res.status(400).end();
   }
   res.set("Cache-Control", "no-cache");
@@ -51,7 +53,8 @@ app.post("/v1/file", upload.single("profilePic"), async (req, res) => {
       filename: req.file.originalname,
       s3_path: fileKey,
     });
-    console.log("File uploaded successfully:", fileKey);
+    logToCloudWatch("INFO", `File uploaded successfully: ${fileKey}`);
+
     res.status(201).json({
       file_name: file.filename,
       id: file.id,
@@ -59,7 +62,7 @@ app.post("/v1/file", upload.single("profilePic"), async (req, res) => {
       upload_date: new Intl.DateTimeFormat('en-CA').format(new Date()), // Output: "2025-03-19"
     });
   } catch (error) {
-    console.error("File upload error:", error);
+    logToCloudWatch("ERROR", `File upload error: ${error.message}`, error);
     res.status(500).end();
   }
 });
@@ -80,7 +83,7 @@ app.get("/v1/file/:id", async (req, res) => {
       upload_date: file.createdAt,
     });
   } catch (error) {
-    console.error("Error retrieving file:", error);
+    console.error("Error retrieving file:", error);a
     res.status(500).end();
   }
 });
@@ -90,26 +93,31 @@ app.delete("/v1/file/:id", async (req, res) => {
   try {
     const file = await FileMetadata.findByPk(req.params.id);
     if (!file) {
+      logToCloudWatch("WARN", `File not found for deletion: ${req.params.id}`);
+
       return res.status(404).end();
     }
 
     await s3.deleteObject({ Bucket: bucketName, Key: file.s3_path }).promise();
     await file.destroy();
-    console.log("File deleted successfully:", file.s3_path);
+    logToCloudWatch("INFO", `File deleted successfully: ${file.s3_path}`);
     res.status(204).send();
   } catch (error) {
-    console.error("File deletion error:", error);
+    logToCloudWatch("ERROR", `File deletion error: ${error.message}`, error);
     res.status(500).end();  
   }
 });
 
 app.all("/healthz", async (req, res) => {
   res.set("Cache-Control", "no-cache");
+  logToCloudWatch("WARN", `Invalid method ${req.method} on /healthz`);
   res.status(405).send();
 });
 
 app.all("/v1/file", async (req, res) => {
   res.set("Cache-Control", "no-cache");
+  logToCloudWatch("WARN", `Invalid method ${req.method} on /v1/file`);
+
   if (req.method === "GET" || req.method === "DELETE") {
     res.status(400).send();
   } else {
@@ -117,12 +125,14 @@ app.all("/v1/file", async (req, res) => {
   }
 });
 app.all("/v1/file/:id", async (req, res) => {
+  logToCloudWatch("WARN", `Invalid method ${req.method} on /v1/file/${req.params.id}`);
   res.set("Cache-Control", "no-cache");
   res.status(405).send();
 });
 
 app.use((req, res) => {
   res.set("Cache-Control", "no-cache");
+  logToCloudWatch("WARN", `404 Not Found: ${req.method} ${req.originalUrl}`);
   res.status(404).end();
 });
 
