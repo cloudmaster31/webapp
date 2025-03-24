@@ -63,9 +63,20 @@ build {
   provisioner "shell" {
     inline = [
       "export DEBIAN_FRONTEND=noninteractive",
-      "sudo apt update & sudo apt install apt-utils -y",
-      "sudo apt upgrade -y",
+      "sudo rm -rf /var/lib/apt/lists/lock /var/lib/dpkg/lock /var/lib/dpkg/lock-frontend",
+      "sudo dpkg --configure -a",
+      "sudo apt-get clean",
 
+      # Disable Ubuntu Pro/ESM repositories to prevent repo issues
+      "sudo pro config set apt-news=false || true",
+      "sudo pro detach || true",
+      "sudo rm -f /etc/apt/sources.list.d/ubuntu-esm-infra.list",
+      "sudo rm -f /etc/apt/sources.list.d/ubuntu-esm-apps.list",
+      "sudo sed -i '/esm.ubuntu.com/d' /etc/apt/sources.list",
+
+      # Run APT update without installing apt-utils
+      "sudo apt-get update --allow-releaseinfo-change",
+      "sudo apt-get upgrade -y",
       "sudo apt install -y unzip curl",
       "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -",
       "sudo apt-get install -y nodejs",
