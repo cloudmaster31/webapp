@@ -64,6 +64,8 @@ build {
   provisioner "shell" {
     inline = [
       "export DEBIAN_FRONTEND=noninteractive",
+      "sudo rm -rf /var/lib/apt/lists/lock /var/lib/dpkg/lock /var/lib/dpkg/lock-frontend",
+      "sudo dpkg --configure -a",
       "sudo apt update",
       "if ! curl -fsSL -m 2 http://169.254.169.254/latest/meta-data >/dev/null 2>&1; then",
       "  echo 'Not on AWS, checking apt-utils compatibility...';",
