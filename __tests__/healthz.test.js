@@ -2,6 +2,7 @@ const request = require("supertest");
 const app = require("../app");
 const { sequelize,connectDatabase } = require("../database");
 
+
 beforeAll(async () => {
   await connectDatabase();
 });

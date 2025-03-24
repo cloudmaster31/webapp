@@ -2,7 +2,7 @@ const express = require("express");
 const multer = require("multer");
 const { v4: uuidv4 } = require("uuid");
 const { sequelize, HealthCheck, s3, FileMetadata } = require("./database");
-// const {logToCloudWatch} = require("./cloudwatch-logger");
+const {logToCloudWatch} = require("./cloudwatch-logger");
 
 const app = express();
 const bucketName = process.env.S3_BUCKET;
