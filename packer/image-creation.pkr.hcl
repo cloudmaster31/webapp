@@ -53,7 +53,6 @@ packer {
 build {
   sources = [
     "source.amazon-ebs.ubuntu",
-    "source.googlecompute.ubuntu"
   ]
 
   provisioner "file" {
@@ -64,20 +63,7 @@ build {
   provisioner "shell" {
     inline = [
       "export DEBIAN_FRONTEND=noninteractive",
-      "sudo rm -rf /var/lib/apt/lists/lock /var/lib/dpkg/lock /var/lib/dpkg/lock-frontend",
-      "sudo dpkg --configure -a",
-      "sudo apt update",
-      "if ! curl -fsSL -m 2 http://169.254.169.254/latest/meta-data >/dev/null 2>&1; then",
-      "  echo 'Not on AWS, checking apt-utils compatibility...';",
-      "  if sudo apt-cache policy apt-utils | grep -q 'Installed: (none)'; then",
-      "    echo 'apt-utils not installed, attempting to install...';",
-      "    sudo apt install -y --allow-downgrades apt=2.0.2ubuntu0.2 apt-utils || echo 'Skipping apt-utils due to dependency issues';",
-      "  else",
-      "    echo 'apt-utils already installed or unnecessary';",
-      "  fi",
-      "else",
-      "  echo 'Skipping apt-utils (running on AWS)';",
-      "fi",
+      "sudo apt update & sudo apt install apt-utils -y",
       "sudo apt upgrade -y",
 
       "sudo apt install -y unzip curl",
