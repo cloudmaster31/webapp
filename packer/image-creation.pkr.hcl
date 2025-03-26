@@ -68,7 +68,7 @@ build {
       "sudo dpkg --configure -a",
       "sudo apt-get clean",
 
-      # Disable Ubuntu Pro/ESM repositories to prevent repo issues
+      # Disable Ubuntu Pro/ESM repositories to prevent repo 
       "sudo pro config set apt-news=false || true",
       "sudo pro detach || true",
       "sudo rm -f /etc/apt/sources.list.d/ubuntu-esm-infra.list",
