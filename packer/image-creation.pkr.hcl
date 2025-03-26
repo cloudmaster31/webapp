@@ -2,7 +2,7 @@ source "amazon-ebs" "ubuntu" {
 
   source_ami_filter {
     filters = {
-      name                = "ubuntu-*-24.04-*"
+      name                = "ubuntu-*-22.04-*"
       root-device-type    = "ebs"
       virtualization-type = "hvm"
       architecture        = "x86_64"
@@ -12,7 +12,7 @@ source "amazon-ebs" "ubuntu" {
   }
   instance_type = var.aws_instance_type
   ssh_username  = "ubuntu"
-  ami_name      = "custom-ubuntu-24.04"
+  ami_name      = "custom-ubuntu-22.04"
   ami_groups    = []
   ami_users     = [var.aws_copy_account_id]
   tags = {
