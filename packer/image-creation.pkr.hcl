@@ -12,7 +12,7 @@ source "amazon-ebs" "ubuntu" {
   }
   instance_type = var.aws_instance_type
   ssh_username  = "ubuntu"
-  ami_name      = "custom-ubuntu-24.04"
+  ami_name      = "custom-ubuntu-24.04-${timestamp()}"
   ami_groups    = []
   ami_users     = [var.aws_copy_account_id]
   tags = {
@@ -21,30 +21,12 @@ source "amazon-ebs" "ubuntu" {
   }
 }
 
-source "googlecompute" "ubuntu" {
-  project_id              = var.gcp_project_id
-  source_image_family     = "ubuntu-minimal-2004-lts"
-  zone                    = var.gcp_zone
-  image_name              = "ubuntu-custom-webapp"
-  image_family            = "ubuntu-minimal-webapp"
-  machine_type            = var.gcp_instance_type
-  ssh_username            = "packer"
-  image_storage_locations = ["us-central1"]
-  labels = {
-    env  = "dev"
-    role = "webapp"
-  }
-}
 
 
 packer {
   required_plugins {
     amazon-ebs = {
       source  = "github.com/hashicorp/amazon"
-      version = ">= 1.0.0, < 2.0.0"
-    }
-    googlecompute = {
-      source  = "github.com/hashicorp/googlecompute"
       version = ">= 1.0.0, < 2.0.0"
     }
   }
@@ -87,13 +69,13 @@ build {
       "sudo useradd -m -s /bin/bash csye6225 || true",
       "sudo groupadd -f csye6225",
       "sudo usermod -aG csye6225 csye6225",
-      "sudo mkdir -p /home/csye6225/app",
-      "sudo chown -R csye6225:csye6225 /home/csye6225",
-      "sudo chmod -R 755 /home/csye6225",
-      "sudo ls -ld /home/csye6225 /home/csye6225/app",
-      "sudo -u csye6225 unzip /tmp/webapp.zip -d /home/csye6225/app",
-      "sudo -u csye6225 ls -la /home/csye6225/app",
-      "cd /home/csye6225/app && sudo -u csye6225 npm install",
+      "sudo mkdir -p /opt/csye6225/app",
+      "sudo chown -R csye6225:csye6225 /opt/csye6225",
+      "sudo chmod -R 755 /opt/csye6225",
+      "sudo ls -ld /opt/csye6225 /opt/csye6225/app",
+      "sudo -u csye6225 unzip /tmp/webapp.zip -d /opt/csye6225/app",
+      "sudo -u csye6225 ls -la /opt/csye6225/app",
+      "cd /opt/csye6225/app && sudo -u csye6225 npm install",
       "sudo mkdir -p /var/log/node",
       "sudo touch /var/log/node/csye6225.log",
       "sudo chown csye6225:csye6225 /var/log/node/csye6225.log",
@@ -112,9 +94,9 @@ build {
       [Service]
       User=csye6225
       Group=csye6225
-      WorkingDirectory=/home/csye6225/app
+      WorkingDirectory=/opt/csye6225/app
       EnvironmentFile=/etc/environment
-      ExecStart=/usr/bin/env node /home/csye6225/app/index.js >> /var/log/node/csye6225.log 2>&1
+      ExecStart=/usr/bin/env node /opt/csye6225/app/index.js >> /var/log/node/csye6225.log 2>&1
       Restart=always
       StandardOutput=append:/var/log/node/csye6225.log
       StandardError=append:/var/log/node/csye6225.log
