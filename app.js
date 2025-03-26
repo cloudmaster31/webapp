@@ -119,6 +119,8 @@ app.all("/v1/file/:id", async (req, res) => {
 
 app.use((req, res) => {
   res.set("Cache-Control", "no-cache");
+  logToCloudWatch("WARN", `404 Not Found: ${req.method} ${req.originalUrl}`);
+
   res.status(404).end();
 });
 
