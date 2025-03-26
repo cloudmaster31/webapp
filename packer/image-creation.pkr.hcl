@@ -64,19 +64,20 @@ build {
   provisioner "shell" {
     inline = [
       "export DEBIAN_FRONTEND=noninteractive",
-      "sudo apt update",
-      "if ! curl -fsSL -m 2 http://169.254.169.254/latest/meta-data >/dev/null 2>&1; then",
-      "  echo 'Not on AWS, checking apt-utils compatibility...';",
-      "  if sudo apt-cache policy apt-utils | grep -q 'Installed: (none)'; then",
-      "    echo 'apt-utils not installed, attempting to install...';",
-      "    sudo apt install -y --allow-downgrades apt=2.0.2ubuntu0.2 apt-utils || echo 'Skipping apt-utils due to dependency issues';",
-      "  else",
-      "    echo 'apt-utils already installed or unnecessary';",
-      "  fi",
-      "else",
-      "  echo 'Skipping apt-utils (running on AWS)';",
-      "fi",
-      "sudo apt upgrade -y",
+      "sudo rm -rf /var/lib/apt/lists/lock /var/lib/dpkg/lock /var/lib/dpkg/lock-frontend",
+      "sudo dpkg --configure -a",
+      "sudo apt-get clean",
+
+      # Disable Ubuntu Pro/ESM repositories to prevent repo issues
+      "sudo pro config set apt-news=false || true",
+      "sudo pro detach || true",
+      "sudo rm -f /etc/apt/sources.list.d/ubuntu-esm-infra.list",
+      "sudo rm -f /etc/apt/sources.list.d/ubuntu-esm-apps.list",
+      "sudo sed -i '/esm.ubuntu.com/d' /etc/apt/sources.list",
+
+      # Run APT update without installing apt-utils
+      "sudo apt-get update --allow-releaseinfo-change",
+      "sudo apt-get upgrade -y",
 
       "sudo apt install -y unzip curl",
       "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -",
