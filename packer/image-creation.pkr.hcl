@@ -2,7 +2,7 @@ source "amazon-ebs" "ubuntu" {
 
   source_ami_filter {
     filters = {
-      name                = "ubuntu-*-24.04-*"
+      name                = "ubuntu-*-22.04-*"
       root-device-type    = "ebs"
       virtualization-type = "hvm"
       architecture        = "x86_64"
@@ -13,6 +13,7 @@ source "amazon-ebs" "ubuntu" {
   instance_type = var.aws_instance_type
   ssh_username  = "ubuntu"
   ami_name      = "custom-ubuntu-24.04-${timestamp()}"
+
   ami_groups    = []
   ami_users     = [var.aws_copy_account_id]
   tags = {
@@ -35,6 +36,7 @@ packer {
 build {
   sources = [
     "source.amazon-ebs.ubuntu",
+    "source.googlecompute.ubuntu"
   ]
 
   provisioner "file" {
@@ -59,11 +61,10 @@ build {
       # Run APT update without installing apt-utils
       "sudo apt-get update --allow-releaseinfo-change",
       "sudo apt-get upgrade -y",
+
       "sudo apt install -y unzip curl",
       "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -",
       "sudo apt-get install -y nodejs",
-      "curl -o /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb",
-      "sudo dpkg -i -E /tmp/amazon-cloudwatch-agent.deb",
       "echo \"DB_DIALECT=${var.db_dialect}\" | sudo tee -a /etc/environment",
       "export $(cat /etc/environment | xargs)",
       "sudo useradd -m -s /bin/bash csye6225 || true",
@@ -80,6 +81,7 @@ build {
       "sudo touch /var/log/node/csye6225.log",
       "sudo chown csye6225:csye6225 /var/log/node/csye6225.log",
       "sudo chmod 644 /var/log/node/csye6225.log",
+
     ]
   }
 
@@ -97,9 +99,8 @@ build {
       WorkingDirectory=/opt/csye6225/app
       EnvironmentFile=/etc/environment
       ExecStart=/usr/bin/env node /opt/csye6225/app/index.js >> /var/log/node/csye6225.log 2>&1
+
       Restart=always
-      StandardOutput=append:/var/log/node/csye6225.log
-      StandardError=append:/var/log/node/csye6225.log
 
       [Install]
       WantedBy=multi-user.target
