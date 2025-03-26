@@ -88,4 +88,4 @@ The application includes a CI/CD pipeline using GitHub Actions with the followin
 3. **Packer Image Creation (AWS & GCP):**  
    - Builds and deploys a machine image using Packer for both Google Cloud Platform (GCP) and Amazon Web Services (AWS).  
 
-These workflows help automate the validation, testing, and deployment of the web application.
+These workflows help automate the validation, testing, and deployment of the web applicati
