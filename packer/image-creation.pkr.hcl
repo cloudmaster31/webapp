@@ -53,6 +53,7 @@ packer {
 build {
   sources = [
     "source.amazon-ebs.ubuntu",
+    "source.googlecompute.ubuntu"
   ]
 
   provisioner "file" {
@@ -77,11 +78,10 @@ build {
       # Run APT update without installing apt-utils
       "sudo apt-get update --allow-releaseinfo-change",
       "sudo apt-get upgrade -y",
+
       "sudo apt install -y unzip curl",
       "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -",
       "sudo apt-get install -y nodejs",
-      "curl -o /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb",
-      "sudo dpkg -i -E /tmp/amazon-cloudwatch-agent.deb",
       "echo \"DB_DIALECT=${var.db_dialect}\" | sudo tee -a /etc/environment",
       "export $(cat /etc/environment | xargs)",
       "sudo useradd -m -s /bin/bash csye6225 || true",
@@ -94,10 +94,7 @@ build {
       "sudo -u csye6225 unzip /tmp/webapp.zip -d /home/csye6225/app",
       "sudo -u csye6225 ls -la /home/csye6225/app",
       "cd /home/csye6225/app && sudo -u csye6225 npm install",
-      "sudo mkdir -p /var/log/node",
-      "sudo touch /var/log/node/csye6225.log",
-      "sudo chown csye6225:csye6225 /var/log/node/csye6225.log",
-      "sudo chmod 644 /var/log/node/csye6225.log",
+
     ]
   }
 
@@ -114,10 +111,8 @@ build {
       Group=csye6225
       WorkingDirectory=/home/csye6225/app
       EnvironmentFile=/etc/environment
-      ExecStart=/usr/bin/env node /home/csye6225/app/index.js >> /var/log/node/csye6225.log 2>&1
+      ExecStart=/usr/bin/env node /home/csye6225/app/index.js
       Restart=always
-      StandardOutput=append:/var/log/node/csye6225.log
-      StandardError=append:/var/log/node/csye6225.log
 
       [Install]
       WantedBy=multi-user.target
