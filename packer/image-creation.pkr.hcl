@@ -12,27 +12,12 @@ source "amazon-ebs" "ubuntu" {
   }
   instance_type = var.aws_instance_type
   ssh_username  = "ubuntu"
-  ami_name      = "custom-ubuntu-22.04"
+  ami_name      = "custom-ubuntu-22.04-${(formatdate("YYYYMMDDHHmmss", timestamp()))}"
   ami_groups    = []
   ami_users     = [var.aws_copy_account_id]
   tags = {
     Project = "DEV"
     Owner   = "Smit"
-  }
-}
-
-source "googlecompute" "ubuntu" {
-  project_id              = var.gcp_project_id
-  source_image_family     = "ubuntu-minimal-2004-lts"
-  zone                    = var.gcp_zone
-  image_name              = "ubuntu-custom-webapp"
-  image_family            = "ubuntu-minimal-webapp"
-  machine_type            = var.gcp_instance_type
-  ssh_username            = "packer"
-  image_storage_locations = ["us-central1"]
-  labels = {
-    env  = "dev"
-    role = "webapp"
   }
 }
 
@@ -43,17 +28,12 @@ packer {
       source  = "github.com/hashicorp/amazon"
       version = ">= 1.0.0, < 2.0.0"
     }
-    googlecompute = {
-      source  = "github.com/hashicorp/googlecompute"
-      version = ">= 1.0.0, < 2.0.0"
-    }
   }
 }
 
 build {
   sources = [
     "source.amazon-ebs.ubuntu",
-    "source.googlecompute.ubuntu"
   ]
 
   provisioner "file" {
@@ -78,10 +58,11 @@ build {
       # Run APT update without installing apt-utils
       "sudo apt-get update --allow-releaseinfo-change",
       "sudo apt-get upgrade -y",
-
       "sudo apt install -y unzip curl",
       "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -",
       "sudo apt-get install -y nodejs",
+      "curl -o /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb",
+      "sudo dpkg -i -E /tmp/amazon-cloudwatch-agent.deb",
       "echo \"DB_DIALECT=${var.db_dialect}\" | sudo tee -a /etc/environment",
       "export $(cat /etc/environment | xargs)",
       "sudo useradd -m -s /bin/bash csye6225 || true",
@@ -94,7 +75,10 @@ build {
       "sudo -u csye6225 unzip /tmp/webapp.zip -d /home/csye6225/app",
       "sudo -u csye6225 ls -la /home/csye6225/app",
       "cd /home/csye6225/app && sudo -u csye6225 npm install",
-
+      "sudo mkdir -p /var/log/node",
+      "sudo touch /var/log/node/csye6225.log",
+      "sudo chown csye6225:csye6225 /var/log/node/csye6225.log",
+      "sudo chmod 644 /var/log/node/csye6225.log",
     ]
   }
 
@@ -111,8 +95,10 @@ build {
       Group=csye6225
       WorkingDirectory=/home/csye6225/app
       EnvironmentFile=/etc/environment
-      ExecStart=/usr/bin/env node /home/csye6225/app/index.js
+      ExecStart=/usr/bin/env node /home/csye6225/app/index.js >> /var/log/node/csye6225.log 2>&1
       Restart=always
+      StandardOutput=append:/var/log/node/csye6225.log
+      StandardError=append:/var/log/node/csye6225.log
 
       [Install]
       WantedBy=multi-user.target
