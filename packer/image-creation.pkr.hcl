@@ -12,7 +12,7 @@ source "amazon-ebs" "ubuntu" {
   }
   instance_type = var.aws_instance_type
   ssh_username  = "ubuntu"
-  ami_name      = "custom-ubuntu-22.04-${timestamp()}"
+  ami_name      = "custom-ubuntu-22.04-${timestamp() | clean_resource_name}"
   ami_groups    = []
   ami_users     = [var.aws_copy_account_id]
   tags = {
