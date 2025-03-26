@@ -53,7 +53,6 @@ packer {
 build {
   sources = [
     "source.amazon-ebs.ubuntu",
-    "source.googlecompute.ubuntu"
   ]
 
   provisioner "file" {
@@ -64,23 +63,25 @@ build {
   provisioner "shell" {
     inline = [
       "export DEBIAN_FRONTEND=noninteractive",
-      "sudo apt update",
-      "if ! curl -fsSL -m 2 http://169.254.169.254/latest/meta-data >/dev/null 2>&1; then",
-      "  echo 'Not on AWS, checking apt-utils compatibility...';",
-      "  if sudo apt-cache policy apt-utils | grep -q 'Installed: (none)'; then",
-      "    echo 'apt-utils not installed, attempting to install...';",
-      "    sudo apt install -y --allow-downgrades apt=2.0.2ubuntu0.2 apt-utils || echo 'Skipping apt-utils due to dependency issues';",
-      "  else",
-      "    echo 'apt-utils already installed or unnecessary';",
-      "  fi",
-      "else",
-      "  echo 'Skipping apt-utils (running on AWS)';",
-      "fi",
-      "sudo apt upgrade -y",
+      "sudo rm -rf /var/lib/apt/lists/lock /var/lib/dpkg/lock /var/lib/dpkg/lock-frontend",
+      "sudo dpkg --configure -a",
+      "sudo apt-get clean",
 
+      # Disable Ubuntu Pro/ESM repositories to prevent repo issues
+      "sudo pro config set apt-news=false || true",
+      "sudo pro detach || true",
+      "sudo rm -f /etc/apt/sources.list.d/ubuntu-esm-infra.list",
+      "sudo rm -f /etc/apt/sources.list.d/ubuntu-esm-apps.list",
+      "sudo sed -i '/esm.ubuntu.com/d' /etc/apt/sources.list",
+
+      # Run APT update without installing apt-utils
+      "sudo apt-get update --allow-releaseinfo-change",
+      "sudo apt-get upgrade -y",
       "sudo apt install -y unzip curl",
       "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -",
       "sudo apt-get install -y nodejs",
+      "curl -o /tmp/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb",
+      "sudo dpkg -i -E /tmp/amazon-cloudwatch-agent.deb",
       "echo \"DB_DIALECT=${var.db_dialect}\" | sudo tee -a /etc/environment",
       "export $(cat /etc/environment | xargs)",
       "sudo useradd -m -s /bin/bash csye6225 || true",
@@ -93,7 +94,10 @@ build {
       "sudo -u csye6225 unzip /tmp/webapp.zip -d /home/csye6225/app",
       "sudo -u csye6225 ls -la /home/csye6225/app",
       "cd /home/csye6225/app && sudo -u csye6225 npm install",
-
+      "sudo mkdir -p /var/log/node",
+      "sudo touch /var/log/node/csye6225.log",
+      "sudo chown csye6225:csye6225 /var/log/node/csye6225.log",
+      "sudo chmod 644 /var/log/node/csye6225.log",
     ]
   }
 
@@ -110,31 +114,10 @@ build {
       Group=csye6225
       WorkingDirectory=/home/csye6225/app
       EnvironmentFile=/etc/environment
-      ExecStart=/usr/bin/env node /home/csye6225/app/index.js
+      ExecStart=/usr/bin/env node /home/csye6225/app/index.js >> /var/log/node/csye6225.log 2>&1
       Restart=always
-
-      [Install]
-      WantedBy=multi-user.target
-      EOL'
-      EOF
-    ]
-  }
-
-  provisioner "shell" {
-    inline = [
-      <<EOF
-      sudo bash -c 'cat > /etc/systemd/system/myapp.service <<EOL
-      [Unit]
-      Description=My Web Application
-      After=network.target
-
-      [Service]
-      User=csye6225
-      Group=csye6225
-      WorkingDirectory=/home/csye6225/app
-      EnvironmentFile=/etc/environment
-      ExecStart=/usr/bin/env node /home/csye6225/app/index.js
-      Restart=always
+      StandardOutput=append:/var/log/node/csye6225.log
+      StandardError=append:/var/log/node/csye6225.log
 
       [Install]
       WantedBy=multi-user.target
