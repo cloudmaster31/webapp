@@ -17,7 +17,7 @@ function logToCloudWatch(level, message, error = null) {
     fs.appendFileSync(path, logString, "utf8");
 
     // Also log to console for debugging
-    console.log(logString.trim());
+    // console.log(logString.trim());
   } catch (err) {
     console.error("File Logging Error:", err);
   }

@@ -17,7 +17,7 @@ function logMetric(metricName, apiName, value) {
             Value: apiName,
           },
         ],
-        Unit: "Milliseconds",
+        Unit: unit,
         Value: value,
       },
     ],
