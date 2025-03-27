@@ -130,3 +130,4 @@ dist
 .pnp.*
 /packer/var.pkrvars.hcl
 *.pkrvars.hcl
+.DS_Store
