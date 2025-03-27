@@ -1,7 +1,7 @@
 # Webapp
 
 ## Description  
-This application is built using Node.js and provides multiple API endpoints, including a `/healthz` endpoint for health checks and `/v1/file` endpoints for file uploads, retrieval, and deletion.  
+This application is built using Node.js and provides multiple API endpoints, including a `/healthz` endpoint for health checks and `/v1/file` endpoints for file uploads, retrieval, and deletion. The application also integrates **AWS CloudWatch** for logging and monitoring API usage metrics.  
 
 ## Setup Instructions  
 
@@ -16,7 +16,7 @@ To start the server:
 ```bash
 node index.js
 ```  
-The server runs on port 8080.  
+The server runs on port **8080**.  
 
 ### 3. Testing API  
 
@@ -45,7 +45,7 @@ curl -X DELETE http://localhost:8080/v1/file/{file_id}
 ```  
 
 ### 4. Running Tests  
-A test API has been added. Run the tests using:  
+Run the tests using:  
 ```bash
 npm test
 ```  
@@ -88,4 +88,51 @@ The application includes a CI/CD pipeline using GitHub Actions with the followin
 3. **Packer Image Creation (AWS & GCP):**  
    - Builds and deploys a machine image using Packer for both Google Cloud Platform (GCP) and Amazon Web Services (AWS).  
 
-These workflows help automate the validation, testing, and deployment of the web applicati
+These workflows help automate the validation, testing, and deployment of the web application.  
+
+## Metrics & Logging  
+
+### **CloudWatch Metrics**  
+The application collects and sends the following custom metrics to **AWS CloudWatch**:  
+
+1. **API Usage Metrics**  
+   - Count of how many times each API is called (`API_Call_Count`).  
+   - Execution time for each API call in milliseconds (`API_Response_Time`).  
+
+2. **Database Query Performance**  
+   - Time (in milliseconds) for each database query executed (`DB_Query_Time`).  
+
+3. **AWS S3 Interaction Metrics**  
+   - Time (in milliseconds) for each call made to the **AWS S3** service (`S3_Call_Time`).  
+
+These metrics help monitor system performance and ensure efficient API processing.  
+
+### **Logging in CloudWatch**  
+- **All user requests generate log messages** that can be seen in AWS CloudWatch.  
+- **Log messages are meaningful**, written in proper English with correct grammar and spelling.  
+- **Errors and exceptions are logged** at appropriate log levels (`INFO`, `WARN`, `ERROR`).  
+- **Stack traces are included** where applicable to help with debugging.  
+
+## Example Log Messages  
+
+- **Health Check Passed:**  
+  ```
+  INFO: Health check passed
+  ```  
+
+- **File Upload Success:**  
+  ```
+  INFO: File uploaded successfully: {file_path}
+  ```  
+
+- **Database Query Execution Time:**  
+  ```
+  INFO: DB query execution time: {time_in_ms}ms
+  ```  
+
+- **S3 Call Time Logging:**  
+  ```
+  INFO: S3 call completed in {time_in_ms}ms
+  ```  
+
+This ensures a robust logging system to track application health, performance, and failures.  
