@@ -138,8 +138,63 @@ jobs:
 
 
 
-      - name: Run Packer Build
+      - name: Run Packer Build and Capture AMI ID
+        id: packer_build
         run: |
           set -e
-          packer build -on-error=abort packer/ || exit 1
+          AMI_ID=$(packer build -machine-readable packer/ | tee build.log | grep 'artifact,0,id' | cut -d, -f6 | cut -d: -f2)
+          echo "Built AMI ID: $AMI_ID"
+          echo "ami_id=$AMI_ID" >> $GITHUB_OUTPUT
+
+      - name: Configure AWS CLI for DEMO account
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.DEMO_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.DEMO_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.DEMO_AWS_REGION }}
       
+      - name: Create new Launch Template version (DEMO)
+        run: |
+          aws ec2 create-launch-template-version \
+            --launch-template-id ${{ secrets.LAUNCH_TEMPLATE_ID }} \
+            --source-version \$Latest \
+            --launch-template-data "{\"ImageId\":\"${{ steps.packer_build.outputs.ami_id }}\"}"
+      
+      - name: Set default Launch Template version
+        run: |
+          aws ec2 modify-launch-template \
+            --launch-template-id ${{ secrets.LAUNCH_TEMPLATE_ID }} \
+            --default-version \$Latest
+
+      - name: Start Instance Refresh
+        id: refresh
+        run: |
+          REFRESH_ID=$(aws autoscaling start-instance-refresh \
+            --auto-scaling-group-name ${{ secrets.DEMO_ASG_NAME }} \
+            --query 'InstanceRefreshId' --output text)
+          echo "refresh_id=$REFRESH_ID" >> $GITHUB_OUTPUT
+
+      - name: Wait for Instance Refresh to Complete
+        run: |
+          echo "Waiting for instance refresh to complete..."
+          STATUS="InProgress"
+          while [[ "$STATUS" == "InProgress" ]]; do
+            sleep 30
+            STATUS=$(aws autoscaling describe-instance-refreshes \
+              --auto-scaling-group-name ${{ secrets.DEMO_ASG_NAME }} \
+              --instance-refresh-ids ${{ steps.refresh.outputs.refresh_id }} \
+              --query 'InstanceRefreshes[0].Status' \
+              --output text)
+            echo "Current status: $STATUS"
+          done
+
+          if [[ "$STATUS" != "Successful" ]]; then
+            echo "Instance refresh failed with status: $STATUS"
+            exit 1
+          else
+            echo "Instance refresh completed successfully."
+          fi
+
+
+            
+            
