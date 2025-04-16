@@ -123,7 +123,7 @@ INFO: S3 call completed in 27ms
 ## Deployment Notes
 - This app is deployed to **EC2 instances** behind an **Application Load Balancer (ALB)**.
 - ALB supports both **HTTP** and **HTTPS**.
-- SSL certificates are **imported manually (e.g., via Namecheap)** and attached to the ALB.
+- SSL certificate is **imported manually (e.g., via Namecheap)** and attached to the ALB.
 - DNS routing is handled via **Route 53**.
 
 
